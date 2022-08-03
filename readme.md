@@ -1,22 +1,38 @@
-# [Nextra](https://nextra.vercel.app)
+# Outerbridge - Automate Web3 and Web2 applications
 
-_Warning: this project is not production ready, API might change without notice._
+Docs page for Outerbridge. 
 
-[![](https://vercel.com/button)](https://vercel.com/import/git?s=https%3A%2F%2Fgithub.com%2Fshuding%2Fnextra&c=1)
+![Outerbridge](/public/outerbridge_brand.svg)
 
-**Nextra** is a [Next.js](https://nextjs.org) and [MDX](https://mdxjs.com) powered, no-code site generator.
+![Outerbridge Screenshot](/public/banner_svg.svg)
 
-![](/public/demo.png)
+## Setup
+1. Clone the repository
+	```
+	git clone https://github.com/Outerbridgeio/outerbridge-docs.git
+	```
+
+2. Go into repository folder
+	```
+	cd outerbridge-docs
+	```
+
+3. Install all dependencies:
+	```
+	yarn install
+	```
+
+4. Build all the code:
+	```
+	yarn run build
+	```
+
+5. Start the app:
+	```
+	yarn run start
+	```
+
+You can now access the app on `http://localhost:3000/`.
 
 ## Development
-
-The code of Nextra is under the [`core`](https://github.com/shuding/nextra/tree/core) branch.
-
-## Themes
-
-- [nextra-theme-docs](https://github.com/vercel/swr-site) ([demo](https://swr.vercel.app))
-- [nextra-theme-blog](https://github.com/shuding/site) ([demo](https://shud.in))
-
----
-
-Created by [@shuding](https://github.com/shuding) and [@pacocoursey](https://github.com/pacocoursey) at [Vercel](https://vercel.com). Released under the MIT license.
+For development build, run: `yarn run dev`. Any changes will reload the app automatically.

@@ -1,6 +1,9 @@
 {
   "index": "Introduction",
   "get-started": "Get Started",
+  "how-to-use": "How To Use",
+  "create": "Create",
+  "integrations": "Integrations",
   "features": "Features",
   "themes": "Themes",
   "advanced": "Advanced"

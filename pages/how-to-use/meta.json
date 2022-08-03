@@ -1,0 +1,9 @@
+{
+  "workflows": "Workflows",
+  "nodes": "Nodes",
+  "edges": "Edges",
+  "credentials": "Credentials",
+  "executions": "Executions",
+  "contracts": "Contracts",
+  "wallets": "Wallets"
+}

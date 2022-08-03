@@ -1,0 +1,64 @@
+import Callout from 'nextra-theme-docs/callout'
+
+# Nodes
+
+A node is script or function written to perform a single action. 
+For instance: API calls using [axios](https://github.com/axios/axios), cron jobs, set timeout, send email and etc.
+This is how node works:
+1. Receive inputs from user
+2. Execute function using the input parameters received
+3. Emit and save results
+
+Three types of nodes in Outerbridge:
+- Action Node
+- Trigger Node
+- Webhook Node
+
+<Callout>
+  It is recommended to test out every node before deploying the whole workflow
+</Callout>
+
+## Action Node
+
+Action node is a node that performs an action / execute a function. 
+
+### How to test action node
+
+1. Add a new action node
+2. For each section, fill in the required fields
+3. Click Continue to get a green check ✅
+4. Lastly, click Test Node to test the action node
+
+<br />
+<img src="/action-node-test.gif" alt="Outerbridge Action Node" height="auto" width='100%'></img>
+
+
+## Trigger Node
+
+Trigger node is a node that listens to event via [NodeJS Event Emitter](https://nodejs.dev/learn/the-nodejs-event-emitter).
+
+### How to test trigger node
+
+1. Add a new trigger node
+2. For each section, fill in the required fields
+3. Click Continue to get a green check ✅
+4. Click Test Node to test the trigger node
+5. Send the event (e.g: an email, a token transfer)
+
+<br />
+<img src="/trigger-node-test.gif" alt="Outerbridge Trigger Node" height="auto" width='100%'></img>
+
+## Webhook Node
+
+Webhook node is a node that listens to webhook calls.
+
+### How to test webhook node
+
+1. Add a new webhook node
+2. For each section, fill in the required fields
+3. Click Continue to get a green check ✅
+4. Click Save & Test Webhook to test the webhook node. Note: workflow will be automatically saved at this point.
+5. Call the Webhook URL
+
+<br />
+<img src="/webhook-node-test.gif" alt="Outerbridge Webhook Node" height="auto" width='100%'></img>
