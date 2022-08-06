@@ -1,2 +1,20 @@
 # Executions
 
+An execution will be started whenever an event/webhook kickstart a deployed workflow. 
+Execution will be saved along with the results of each executed node.
+
+<br />
+<img src="/executions.png" alt="Outerbridge Executions" height="auto" width='100%'></img>
+
+There are 4 stages of Execution:
+- **INPROGRESS**: When execution is still running
+- **FINISHED**: When execution has finished
+- **ERROR**: When there is error executing node
+- **TERMINATED**: When user manually stop the deployed workflow while an execution is still running
+- **TIMEOUT**: When the execution time exceeds specified timeout. To specify the timeout:
+    1. Go to `Outerbridge/packages/server`
+    2. Create one `.env` file or modify the existing one by setting:
+        ```jsx
+        EXECUTION_TIMEOUT=<MILLISECONDS>
+        ```
+    3. Rebuild the app `yarn run build`

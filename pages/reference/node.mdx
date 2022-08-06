@@ -1,0 +1,119 @@
+# Node Reference
+
+## Node Properties
+
+| Properties      | Type      | Description                                                                                                                                             |
+| :---            | :---      | :---                                                                                                                                                    |
+| label           | String    | Display name of the node                                                                                                                                |
+| name            | String    | Actual name of the node using [CamelCase](https://wiki.c2.com/?CamelCase)                                                                               |
+| icon            | String    | Icon name in the folder                                                                                                                                 |
+| type            | Enum      | Type of node. Can be either `trigger` or `action` or `webhook`                                                                                          |
+| version         | Number    | Version of the node                                                                                                                                     |
+| description     | String    | Description of the node                                                                                                                                 |
+| incoming        | Number    | Number of input edges this node is expected to receive from upstream. From ui, this corresponds to number of dots available at the top of the node.     |
+| outgoing        | Number    | Number of output edges this node is expected to emit to downstream. From ui, this corresponds to number of dots available at the bottom of the node.    |          
+
+**Example**
+```jsx
+class ExampleBlock implements INode {
+	
+    label: string;
+    name: string;
+    type: NodeType;
+    description?: string;
+    version: number;
+	icon: string;
+    incoming: number;
+	outgoing: number;
+
+    constructor() {
+        this.label = 'ExampleBlock';
+		this.name = 'exampleBlock';
+		this.icon = 'example-block.svg';
+		this.type = 'action';
+		this.version = 1.0;
+		this.description = 'This is an example block';
+		this.incoming = 1;
+		this.outgoing = 1;
+    }
+}
+```
+
+## Node Parameters
+
+There are 4 node parameters. They are designed to give a better user experience in ui, allowing user to enter inputs step by step.
+
+| Parameters      | Description     
+| :---            | :---      
+| Actions         | Type of action/event this node is going to execute or get triggered
+| Networks        | Blockchain network to execute on. Only used for onchain nodes
+| Credentials     | Credential needed to authenticate the node
+| InputParameters | Remaining input parameters (e.g: query params, body)
+
+<br />
+<img src="/node-parameters.gif" alt="Outerbridge Node Parameters" height="auto" width='100%'></img>
+
+**Example**
+```jsx
+class ExampleBlock implements INode {
+	
+    //...properties
+    actions: INodeParams[];
+    networks: INodeParams[];
+    credentials: INodeParams[];
+    inputParameters: INodeParams[];
+
+    constructor() {
+        //...properties
+        this.actions = [
+			{
+				label: 'Select Action',
+				name: 'action',
+				type: 'options',
+				options: [
+					{
+						label: 'Action 1',
+						name: 'action1',
+					},
+				],
+				default: 'action1',
+			},
+        ] as INodeParams[];
+        this.networks = [
+			{
+				label: 'Network',
+				name: 'network',
+				type: 'options',
+				options: [
+					{
+						label: 'Ethereum Mainnet',
+						name: 'homestead',
+					},
+				],
+				default: 'homestead',
+			},
+        ] as INodeParams[];
+        this.credentials = [
+			{
+				label: 'Credential Method',
+				name: 'credentialMethod',
+				type: 'options',
+				options: [
+					{
+						label: 'Some API Key',
+						name: 'someApi',
+					},
+				],
+				default: 'someApi',
+			},
+		] as INodeParams[];
+        this.inputParameters = [
+			{
+				label: 'Input Field 1',
+				name: 'inputField1',
+				type: 'string',
+				default: '',
+			},
+        ] as INodeParams[];
+    }
+```

@@ -1,0 +1,296 @@
+# Trigger node
+
+In this tutorial, we are going to create a trigger node that will automatically gets triggered when a new block is mined on Ethereum Mainnet.
+
+## Prerequisite
+- Have Outerbridge setup and working. See [setup guide](/get-started).
+
+## Step 1
+Go to `Outerbridge/packages/components/nodes`, create a folder `MinedBlockTrigger`. Inside the folder create a file `MinedBlockTrigger.ts`.
+
+## Step 2
+Add an icon into the folder. It can be either `jpg`, `png`, or `svg` format.
+For instance, download this [Ethereum Icon](https://cryptologos.cc/logos/ethereum-eth-logo.svg?v=023) and save as `mined-block-trigger.svg` into the folder.
+
+## Step 3
+In `MinedBlockTrigger.ts`, import libraries, interfaces and utils.
+
+```jsx
+import {
+	INode, 
+    INodeData, 
+    INodeParams, 
+    IProviders, 
+    NodeType,
+} from '../../src/Interface';
+import { returnNodeExecutionData } from '../../src/utils';
+import EventEmitter from 'events';
+import { ethers } from "ethers";
+```
+
+## Step 4
+Create the class and its constructor with properties. Read more on [Node Properties](/reference/node#node-properties).
+```jsx
+//...imports
+class MinedBlockTrigger extends EventEmitter implements INode {
+	
+    label: string;
+    name: string;
+    type: NodeType;
+    description?: string;
+    version: number;
+	icon: string;
+    incoming: number;
+	outgoing: number;
+
+    constructor() {
+		super();
+        this.label = 'Mined Block Trigger';
+		this.name = 'minedBlockTrigger';
+		this.icon = 'mined-block-trigger.svg';
+		this.type = 'trigger';
+		this.version = 1.0;
+		this.description = 'Start workflow whenever a block is mined';
+		this.incoming = 0;
+		this.outgoing = 1;
+    }
+}
+module.exports = { nodeClass: MinedBlockTrigger }
+```
+
+## Step 5
+Add node parameters `networks`. Read more on [Node Parameters](/reference/node#node-parameters).
+
+```jsx
+//...imports
+class MinedBlockTrigger extends EventEmitter implements INode {
+	
+    //...properties
+    networks: INodeParams[];
+
+    constructor() {
+        super();
+        //...properties
+        this.networks = [
+			{
+				label: 'Network',
+				name: 'network',
+				type: 'options',
+				options: [
+					{
+						label: 'Ethereum Mainnet',
+						name: 'homestead',
+					},
+				],
+				default: 'homestead',
+			},
+        ] as INodeParams[];
+    }
+}
+module.exports = { nodeClass: MinedBlockTrigger }
+```
+
+In this tutorial, we only allow user to select Ethereum Mainnet for simplicity.
+
+## Step 6
+Create 2 functions after the constructor. The exact 2 functions are needed for every trigger node.
+
+```jsx
+//...imports
+class MinedBlockTrigger extends EventEmitter implements INode {
+	
+    //...properties
+    //...parameters
+
+    constructor() {
+        //...properties
+        //...parameters 
+    }
+
+    async runTrigger(nodeData: INodeData): Promise<void> {
+        // function to start listening event
+    }
+
+    async removeTrigger(nodeData: INodeData): Promise<void> {
+        // function to remove event listener
+    }
+}
+module.exports = { nodeClass: MinedBlockTrigger }
+```
+
+## Step 7
+Inside `runTrigger()` function, copy and paste the following code:
+
+```jsx
+const networksData = nodeData.networks;
+
+if (networksData === undefined) {
+    throw new Error('Required data missing');
+}
+
+const network = networksData.network as string;
+const emitEventKey = nodeData.emitEventKey as string;
+
+let provider: any;
+
+if (network === 'homestead')
+    provider = new ethers.providers.CloudflareProvider();
+
+provider.on("block", (blockNumber: any) => {
+    // Emitted on every block change
+    this.emit(emitEventKey, returnNodeExecutionData(blockNumber));
+});
+```
+
+First get the network choice that user has selected from ui.
+For every trigger node, an `emitEventKey` will be available from `nodeData.emitEventKey`.
+We start declaring the event listener - `provider`. It this example, we will be using the provider event emitter from [ethers.js](https://docs.ethers.io/v5/api/providers/provider/#Provider-on) to listen for `"block"` event.
+Whenever a new block is mined, `provider.on("block")` will gets triggered.
+We then emit the result using the `emitEventKey`.
+
+## Step 8
+Inside `removeTrigger()` function, copy and paste the following code:
+
+```jsx
+const emitEventKey = nodeData.emitEventKey || '';
+if (Object.prototype.hasOwnProperty.call(this.providers, emitEventKey)) {
+    const provider = this.providers[emitEventKey].provider;
+    provider.off("block");
+    this.removeAllListeners(emitEventKey);
+}
+```
+`removeTrigger()` will be called whenever user stops a deployed workflow, or after finish testing the trigger node.
+In order to remember which event listener to remove, we are going to declare a class-scoped variable - `providers`.
+It will be an object with `emitEventKey` as the key and event listener object as value.
+```json
+// providers
+{
+    [emitEventKey]: <EventListenerObject>
+}
+```
+
+## Step 9 
+Declare class-scoped variable `providers`. Then add new key-value pair in `runTrigger()`.
+
+```jsx
+//...imports
+class MinedBlockTrigger extends EventEmitter implements INode {
+	
+    //...properties
+    //...parameters
+    providers: IProviders;
+
+    constructor() {
+        //...properties
+        //...parameters
+        this.providers = {};
+    }
+
+    async runTrigger(nodeData: INodeData): Promise<void> {
+        // ...runTrigger
+        this.providers[emitEventKey] = { provider };
+    }
+}
+module.exports = { nodeClass: MinedBlockTrigger }
+```
+
+## Step 10
+At root path `Outerbridge`, run `yarn run build` to build the node into `dist` folder which will be eventually picked up by `server`. 
+After build has successfully finished, run `yarn run dev` for development, or `yarn run start` for production.
+
+🎉 You have successfully created a trigger node!
+
+<br />
+<img src="/create-trigger-node.gif" alt="Outerbridge Mined Block Trigger" height="auto" width='100%'></img>
+
+**Complete Code**
+```jsx
+import {
+	INode, 
+    INodeData, 
+    INodeParams, 
+    IProviders, 
+    NodeType,
+} from '../../src/Interface';
+import { returnNodeExecutionData } from '../../src/utils';
+import EventEmitter from 'events';
+import { ethers } from "ethers";
+
+class MinedBlockTrigger extends EventEmitter implements INode {
+	
+    label: string;
+    name: string;
+    type: NodeType;
+    description?: string;
+    version: number;
+	icon: string;
+    incoming: number;
+	outgoing: number;
+    actions: INodeParams[];
+    networks: INodeParams[];
+	providers: IProviders;
+
+    constructor() {
+		super();
+        this.label = 'Mined Block Trigger';
+		this.name = 'MinedBlockTrigger';
+		this.icon = 'mined-block-trigger.svg';
+		this.type = 'trigger';
+		this.version = 1.0;
+		this.description = 'Start workflow whenever a block is mined';
+		this.incoming = 0;
+		this.outgoing = 1;
+        this.networks = [
+			{
+				label: 'Network',
+				name: 'network',
+				type: 'options',
+				options: [
+					{
+						label: 'Ethereum Mainnet',
+						name: 'homestead',
+					},
+				],
+				default: 'homestead',
+			},
+        ] as INodeParams[];
+		this.providers = {};
+    }
+
+    async runTrigger(nodeData: INodeData): Promise<void> {
+		const networksData = nodeData.networks;
+
+        if (networksData === undefined) {
+            throw new Error('Required data missing');
+        }
+
+		const network = networksData.network as string;
+		const emitEventKey = nodeData.emitEventKey as string;
+
+		let provider: any;
+
+		if (network === 'homestead')
+			provider = new ethers.providers.CloudflareProvider();
+
+		provider.on("block", (blockNumber: any) => {
+			// Emitted on every block change
+			this.emit(emitEventKey, returnNodeExecutionData(blockNumber));
+		});
+
+		this.providers[emitEventKey] = { provider };
+    }
+
+    async removeTrigger(nodeData: INodeData): Promise<void> {
+		const emitEventKey = nodeData.emitEventKey || '';
+		
+		if (Object.prototype.hasOwnProperty.call(this.providers, emitEventKey)) {
+			const provider = this.providers[emitEventKey].provider;
+    		provider.off("block");
+    		this.removeAllListeners(emitEventKey);
+		}
+    }
+}
+
+module.exports = { nodeClass: MinedBlockTrigger }
+```
+

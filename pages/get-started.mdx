@@ -72,7 +72,7 @@ process.env.TUNNEL_BASE_URL = http://<domain>-<name>-<number>.loca.lt/
 This is needed for third-party webhook integration such as Alchemy Webhook in order to reach Outerbridge on web. However it should not be used in production because anyone can access the app.
 To toggle this off:
 1. Go to `Outerbridge/packages/server`
-2. Create a .env file or modify the existing one by setting:
+2. Create one `.env` file or modify the existing one by setting:
   ```jsx
   ENABLE_TUNNEL=false
   ```

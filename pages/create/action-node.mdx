@@ -1,0 +1,454 @@
+# Action node
+
+In this tutorial, we are going to create an action node that will retrieve the Ether balance of a given address using [Etherscan](https://etherscan.io/).
+Etherscan is a Block Explorer and Analytics Platform for Ethereum, a decentralized smart contracts platform.
+
+## Prerequisite
+- Have Outerbridge setup and working. See [setup guide](/get-started).
+- Etherscan account and API key. See [Getting An API Key](https://docs.etherscan.io/getting-started/viewing-api-usage-statistics).
+
+## Step 1
+Go to `Outerbridge/packages/components/nodes`, create a folder `Etherscan`. Inside the folder create a file `Etherscan.ts`.
+
+## Step 2
+Add an icon into the folder. It can be either `jpg`, `png`, or `svg` format.
+For instance, download this [Etherscan Icon](https://etherscan.io/brandassets) and save as `etherscan.svg` into the folder.
+
+## Step 3
+In `Etherscan.ts`, import libraries, interfaces and utils.
+
+```jsx
+import {
+    ICommonObject,
+	INode, 
+    INodeData, 
+    INodeExecutionData, 
+    INodeParams, 
+    NodeType,
+} from '../../src/Interface';
+import {
+	handleErrorMessage,
+    returnNodeExecutionData,
+	serializeQueryParams
+} from '../../src/utils';
+import axios, { AxiosRequestConfig, Method } from 'axios';
+```
+
+## Step 4
+Create the class and its constructor with properties. Read more on [Node Properties](/reference/node#node-properties).
+```jsx
+//...imports
+class Etherscan implements INode {
+
+	label: string;
+    name: string;
+    type: NodeType;
+    description: string;
+    version: number;
+	icon: string;
+    incoming: number;
+	outgoing: number;
+ 
+    constructor() {
+		this.label = 'Etherscan';
+		this.name = 'etherscan';
+		this.icon = 'etherscan.svg';
+		this.type = 'action';
+		this.version = 1.0;
+		this.description = 'Perform Etherscan operations';
+		this.incoming = 1;
+        this.outgoing = 1;
+    }
+}
+
+module.exports = { nodeClass: Etherscan }
+```
+
+## Step 5
+Add node parameters:
+- `actions`
+- `networks`
+- `credentials`
+- `inputParameters`
+
+Read more on [Node Parameters](/reference/node#node-parameters).
+
+```jsx
+//...imports
+class Etherscan implements INode {	
+
+    //...properties
+    actions: INodeParams[];
+	credentials?: INodeParams[];
+	networks?: INodeParams[];
+    inputParameters?: INodeParams[];
+
+    constructor() {
+        //...properties
+        this.actions = [
+            {
+				label: 'API',
+				name: 'api',
+				type: 'options',
+				options: [
+					{
+						label: 'Get Ether Balance for a Single Address',
+						name: 'getEtherBalance',
+						description: 'Returns the Ether balance of a given address.'
+					},
+				],
+				default: 'getEtherBalance'
+			},
+        ] as INodeParams[];
+        this.networks = [
+			{
+				label: 'Network',
+				name: 'network',
+				type: 'options',
+				options: [
+					{
+						label: 'Ethereum Mainnet',
+						name: 'homestead',
+					},
+				],
+				default: 'homestead',
+			},
+		] as INodeParams[];
+        this.credentials = [
+            // credentialMethod is mandatory field
+			{
+				label: 'Credential Method',
+				name: 'credentialMethod',
+				type: 'options',
+				options: [
+					{
+						label: 'Etherscan API Key',
+						name: 'etherscanApi',
+					},
+				],
+				default: 'etherscanApi',
+			},
+		] as INodeParams[];
+        this.inputParameters = [
+			{
+				label: 'Address',
+				name: 'address',
+				type: 'string',
+                description: 'The address to check for balance'
+			},
+        ] as INodeParams[];
+    }
+}
+
+module.exports = { nodeClass: Etherscan }
+```
+
+In this tutorial, we only allow user to select **Get Ether Balance for a Single Address** on **Ethereum Mainnet** for simplicity.
+
+For sensitive information such as API key, we will need `credentials` to safely store and retrieve the information. 
+Inside the `credentialMethod` field, user is able to select `etherscanApi`. We will need to create this credential file in the next step. See more information on [Credentials](/how-to-use/credentials).
+
+Lastly, specify remaining parameters needed for the **Get Ether Balance for a Single Address** API call. In this case, `address` is one of the required query parameters as specified [here](https://docs.etherscan.io/api-endpoints/accounts#get-ether-balance-for-a-single-address).
+
+## Step 6
+Go to `Outerbridge/packages/components/credentials`, create a folder `Etherscan`. Inside the folder create a file `EtherscanApi.ts`.
+You can skip this if there is an existing one already.
+Copy and paste the following:
+
+```jsx
+import {
+    INodeParams, 
+	INodeCredential,
+} from '../../src/Interface';
+
+class EtherscanApi implements INodeCredential {
+
+	name: string;
+    version: number;
+    credentials: INodeParams[];
+
+	constructor() {	
+		this.name = 'etherscanApi';
+		this.version = 1.0;
+		this.credentials = [
+			{
+				label: 'API Key',
+				name: 'apiKey',
+				type: 'string',
+				default: '',
+			},
+		];
+	}
+}
+
+module.exports = { credClass: EtherscanApi }
+```
+
+## Step 7
+Back to `Outerbridge/packages/components/nodes/Etherscan/Etherscan.ts`, create `run()` function after the constructor. This function is needed for every action node.
+
+```jsx
+//...imports
+class Etherscan implements INode {	
+	
+    //...properties
+    //...parameters
+
+    constructor() {
+        //...properties
+        //...parameters 
+    }
+
+    async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
+        // function to start running the node
+    }
+}
+module.exports = { nodeClass: Etherscan }
+```
+
+## Step 8
+Inside `run()` function, copy and paste the following code:
+
+```jsx
+const actionData = nodeData.actions;
+const networksData = nodeData.networks;
+const inputParametersData = nodeData.inputParameters;
+const credentials = nodeData.credentials;
+
+if (actionData === undefined || inputParametersData === undefined || credentials === undefined || networksData === undefined) {
+    throw new Error('Required data missing');
+}
+
+// GET api
+const api = actionData.api as string;
+
+// GET network
+const network = networksData.network as string;
+
+// GET credentials
+const apiKey = credentials.apiKey as string;
+
+// GET address
+const address = inputParametersData.address as string;
+
+const returnData: ICommonObject[] = [];
+let responseData: any;
+
+if (api === 'getEtherBalance') {
+    try {
+        const queryParameters = {
+            module: 'account',
+            action: 'balance',
+            address,
+            tag: 'latest',
+            apikey: apiKey,
+        }
+
+        let url = '';
+        // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
+        if (network === 'homestead') {
+            url = 'https://api.etherscan.io/api';
+        }
+
+        const axiosConfig: AxiosRequestConfig = {
+            method: 'GET' as Method,
+            url,
+            params: queryParameters,
+            paramsSerializer: params => serializeQueryParams(params),
+            headers: { 'Content-Type': 'application/json' }
+        }
+
+        const response = await axios(axiosConfig);
+        responseData = response.data;
+    }
+    catch (error) {
+        throw handleErrorMessage(error);
+    }
+
+    if (Array.isArray(responseData)) returnData.push(...responseData);
+    else returnData.push(responseData);
+
+    return returnNodeExecutionData(returnData);
+}
+return returnNodeExecutionData(returnData);
+```
+
+First, get user inputs from parameters `actions`, `networks`, `credentials` and `inputParameters`.
+
+We then execute `GET` call using `axios`, and return the results using helper function `returnNodeExecutionData()`. See more on [Etherscan Docs](https://docs.etherscan.io/api-endpoints/accounts#get-ether-balance-for-a-single-address).
+
+A `try catch` block is used to capture any error. If there is any error, we use helper function `handleErrorMessage()` to return error message.
+
+
+## Step 9
+At root path `Outerbridge`, run `yarn run build` to build the node into `dist` folder which will be eventually picked up by `server`. 
+After build has successfully finished, run `yarn run dev` for development, or `yarn run start` for production.
+
+🎉 You have successfully created an action node!
+
+<br />
+<img src="/create-action-node.gif" alt="Outerbridge Etherscan Action Node" height="auto" width='100%'></img>
+
+**Complete Code**
+```jsx
+import {
+    ICommonObject,
+	INode, 
+    INodeData, 
+    INodeExecutionData, 
+    INodeParams, 
+    NodeType,
+} from '../../src/Interface';
+import {
+	handleErrorMessage,
+    returnNodeExecutionData,
+	serializeQueryParams
+} from '../../src/utils';
+import axios, { AxiosRequestConfig, Method } from 'axios';
+
+class Etherscan implements INode {
+
+	label: string;
+    name: string;
+    type: NodeType;
+    description: string;
+    version: number;
+	icon: string;
+    incoming: number;
+	outgoing: number;
+    actions: INodeParams[];
+	credentials?: INodeParams[];
+	networks?: INodeParams[];
+    inputParameters?: INodeParams[];
+ 
+    constructor() {
+		this.label = 'Etherscan';
+		this.name = 'etherscan';
+		this.icon = 'etherscan.svg';
+		this.type = 'action';
+		this.version = 1.0;
+		this.description = 'Perform Etherscan operations';
+		this.incoming = 1;
+        this.outgoing = 1;
+        this.actions = [
+            {
+				label: 'API',
+				name: 'api',
+				type: 'options',
+				options: [
+					{
+						label: 'Get Ether Balance for a Single Address',
+						name: 'getEtherBalance',
+						description: 'Returns the Ether balance of a given address.'
+					},
+				],
+				default: 'getEtherBalance'
+			},
+        ] as INodeParams[];
+        this.networks = [
+			{
+				label: 'Network',
+				name: 'network',
+				type: 'options',
+				options: [
+					{
+						label: 'Ethereum Mainnet',
+						name: 'homestead',
+					},
+				],
+				default: 'homestead',
+			},
+		] as INodeParams[];
+        this.credentials = [
+			{
+				label: 'Credential Method',
+				name: 'credentialMethod',
+				type: 'options',
+				options: [
+					{
+						label: 'Etherscan API Key',
+						name: 'etherscanApi',
+					},
+				],
+				default: 'etherscanApi',
+			},
+		] as INodeParams[];
+        this.inputParameters = [
+			{
+				label: 'Address',
+				name: 'address',
+				type: 'string',
+                description: 'The address to check for balance'
+			},
+        ] as INodeParams[];
+    }
+
+    async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
+
+		const actionData = nodeData.actions;
+		const networksData = nodeData.networks;
+        const inputParametersData = nodeData.inputParameters;
+		const credentials = nodeData.credentials;
+
+		if (actionData === undefined || inputParametersData === undefined || credentials === undefined || networksData === undefined) {
+            throw new Error('Required data missing');
+        }
+
+		// GET api
+		const api = actionData.api as string;
+		
+		// GET network
+		const network = networksData.network as string;
+
+		// GET credentials
+		const apiKey = credentials.apiKey as string;
+    
+		// GET address
+		const address = inputParametersData.address as string;
+
+        const returnData: ICommonObject[] = [];
+        let responseData: any;
+
+        if (api === 'getEtherBalance') {
+            try {
+                const queryParameters = {
+                    module: 'account',
+                    action: 'balance',
+                    address,
+                    tag: 'latest',
+                    apikey: apiKey,
+                }
+
+                let url = '';
+                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
+                if (network === 'homestead') {
+                    url = 'https://api.etherscan.io/api';
+                }
+
+				const axiosConfig: AxiosRequestConfig = {
+					method: 'GET' as Method,
+					url,
+                    params: queryParameters,
+                    paramsSerializer: params => serializeQueryParams(params),
+					headers: { 'Content-Type': 'application/json' }
+				}
+
+				const response = await axios(axiosConfig);
+				responseData = response.data;
+			}
+			catch (error) {
+				throw handleErrorMessage(error);
+			}
+
+			if (Array.isArray(responseData)) returnData.push(...responseData);
+			else returnData.push(responseData);
+	
+			return returnNodeExecutionData(returnData);
+        }
+        return returnNodeExecutionData(returnData);
+    }
+}
+
+module.exports = { nodeClass: Etherscan }
+```
+

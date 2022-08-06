@@ -1,0 +1,697 @@
+# Webhook node
+
+In this tutorial, we are going to create a webhook node that will automatically gets triggered when a webhook call is received.
+We will be using [Alchemy Webhook](https://docs.alchemy.com/reference/notify-api-quickstart) to listen for [Mined Transaction](https://docs.alchemy.com/reference/notify-api-quickstart#1-mined-transaction) webhook call.
+
+## Prerequisite
+- Have Outerbridge setup and working. See [setup guide](/get-started).
+- Alchemy account and Auth token. You can find the Auth token at [Notify](https://dashboard.alchemyapi.io/notify) page.
+
+<br />
+<img src="/alchemy-auth-token.png" alt="Alchemy Auth Token" height="auto" width='100%'></img>
+
+
+## Step 1
+Go to `Outerbridge/packages/components/nodes`, create a folder `MinedTransactionWebhook`. Inside the folder create a file `MinedTransactionWebhook.ts`.
+
+## Step 2
+Add an icon into the folder. It can be either `jpg`, `png`, or `svg` format.
+For instance, at [Alchemy main page](https://www.alchemy.com/), scroll to the bottom and click Press Kit. This will download a zipped file. Unzip the file and copy paste the svg logo file as `alchemy.svg` into the folder.
+
+## Step 3
+In `MinedTransactionWebhook.ts`, import libraries, interfaces and utils.
+
+```jsx
+import {
+    ICommonObject,
+	INode, 
+    INodeData, 
+    INodeParams, 
+    IWebhookNodeExecutionData, 
+    NodeType,
+} from '../../src/Interface';
+import {
+    returnWebhookNodeExecutionData
+} from '../../src/utils';
+import axios, { AxiosRequestConfig, Method } from 'axios';
+```
+
+## Step 4
+Create the class and its constructor with properties. Read more on [Node Properties](/reference/node#node-properties).
+```jsx
+//...imports
+class MinedTransactionWebhook implements INode {
+	
+	label: string;
+    name: string;
+    type: NodeType;
+    description: string;
+    version: number;
+	icon: string;
+    incoming: number;
+	outgoing: number;
+
+    constructor() {
+        this.label = 'Mined Transaction Webhook';
+		this.name = 'minedTransactionWebhook';
+		this.icon = 'mined-transaction-webhook.svg';
+		this.type = 'webhook';
+		this.version = 1.0;
+		this.description = 'Start workflow whenever Alchemy webhook mined transaction webhook call received';
+		this.incoming = 0;
+		this.outgoing = 1;
+    }
+}
+module.exports = { nodeClass: MinedTransactionWebhook }
+```
+
+## Step 5
+Add node parameters:
+- `actions`
+- `networks`
+- `credentials`
+- `inputParameters`
+
+Read more on [Node Parameters](/reference/node#node-parameters).
+
+```jsx
+//...imports
+class MinedTransactionWebhook implements INode {
+	
+    //...properties
+    actions: INodeParams[];
+	credentials?: INodeParams[];
+	networks?: INodeParams[];
+    inputParameters?: INodeParams[];
+
+    constructor() {
+        //...properties
+        this.actions = [
+			{
+				label: 'Event',
+				name: 'webhook_type',
+				type: 'options',
+				options: [
+					{
+						label: 'Mined Transactions',
+						name: 'MINED_TRANSACTION',
+						description: 'Triggered anytime a transaction sent through your API key gets successfully mined.',
+					},
+				],
+				default: 'MINED_TRANSACTION',
+			},
+		] as INodeParams[];
+        this.networks = [
+			{
+				label: 'Network',
+				name: 'network',
+				type: 'options',
+				options: [
+					{
+						label: 'Ethereum Mainnet',
+						name: 'ETH_MAINNET',
+					},
+                ]
+            }
+        ] as INodeParams[];
+        this.credentials = [
+			{
+				label: 'Credential Method',
+				name: 'credentialMethod',
+				type: 'options',
+				options: [
+					{
+						label: 'Alchemy API Key',
+						name: 'alchemyApi',
+					},
+				],
+				default: 'alchemyApi',
+			},
+		] as INodeParams[];
+        this.inputParameters = [
+			{
+				label: 'App ID',
+				name: 'app_id',
+				type: 'string',
+				default: '',
+				description: 'App ID can be found within the URL of your specific app. For example, given the URL https://dashboard.alchemyapi.io/apps/xfu8frt3wf94j7h5 your App ID would be xfu8frt3wf94j7h5',
+			},
+		] as INodeParams[];
+    }
+}
+module.exports = { nodeClass: MinedTransactionWebhook }
+```
+
+In this tutorial, we only allow user to select **Mined Transactions** on **Ethereum Mainnet** for simplicity.
+
+For sensitive information such as API key, we will need `credentials` to safely store and retrieve the information. 
+Inside the `credentialMethod` field, user is able to select `alchemyApi`. We will need to create this credential file in the next step. See more information on [Credentials](/how-to-use/credentials).
+
+Lastly, specify remaining parameters needed to create **Mined Transactions** Webhook. In this case, `app_id` is one of the required query parameters as specified [here](https://docs.alchemy.com/reference/create-webhook).
+
+## Step 6
+Go to `Outerbridge/packages/components/credentials`, create a folder `Alchemy`. Inside the folder create a file `AlchemyApi.ts`.
+You can skip this if there is an existing one already.
+Copy and paste the following:
+
+```jsx
+import {
+    INodeParams, 
+	INodeCredential,
+} from '../../src/Interface';
+
+class AlchemyApi implements INodeCredential {
+
+	name: string;
+    version: number;
+    credentials: INodeParams[];
+
+	constructor() {
+		this.name = 'alchemyApi';
+		this.version = 1.0;
+		this.credentials = [
+			{
+				label: 'Webhook Auth Token',
+				name: 'authToken',
+				type: 'string',
+				default: '',
+				optional: true,
+				description: 'Navigate to the top right corner of <a target="_blank" href="https://dashboard.alchemyapi.io/notify">Notify page</a> to copy your "Auth Token".'
+			},
+		];
+	}
+}
+
+module.exports = { credClass: AlchemyApi }
+```
+
+## Step 7
+Back to `Outerbridge/packages/components/nodes/MinedTransactionWebhook/MinedTransactionWebhook.ts`, create 2 webhook methods - `createWebhook()` and `deleteWebhook()` after the constructor. 
+These 2 webhook methods are needed for every webhook node. 
+
+`createWebhook()` will be executed whenever we start testing a webhook node, or start deploying a workflow with webhook node.
+
+`deleteWebhook()` will be executed whenever we finish testing a webhook node, or stop a deployed workflow with webhook node.
+
+```jsx
+//...imports
+class MinedTransactionWebhook implements INode {
+	
+    //...properties
+    //...parameters
+
+    constructor() {
+        //...properties
+        //...parameters 
+    }
+
+    webhookMethods = {
+		async createWebhook(nodeData: INodeData, webhookFullUrl: string): Promise<string | undefined> {
+            // create webhook
+        },
+
+        async deleteWebhook(nodeData: INodeData, webhookId: string): Promise<boolean> {
+            // delete webhook
+        }
+    }
+}
+module.exports = { nodeClass: MinedTransactionWebhook }
+```
+
+## Step 8
+Inside `createWebhook()`, we need to first check if an existing webhook has been created on Alchemy. If not, create a new webhook.
+Refer more on:
+- [Create Webhook on Alchemy](https://docs.alchemy.com/reference/create-webhook)
+- [Get all webhooks on Alchemy](https://docs.alchemy.com/reference/team-webhooks)
+
+```jsx
+//...imports
+class MinedTransactionWebhook implements INode {
+	
+    //...properties
+    //...parameters
+
+    constructor() {
+        //...properties
+        //...parameters 
+    }
+    
+    webhookMethods = {
+		async createWebhook(nodeData: INodeData, webhookFullUrl: string): Promise<string | undefined> {
+            // Check if webhook exists
+            const credentials = nodeData.credentials;
+            const inputParametersData = nodeData.inputParameters;
+            const networksData = nodeData.networks;
+            const actionsData = nodeData.actions;
+
+            if (inputParametersData === undefined || actionsData === undefined || networksData === undefined) {
+                throw new Error('Required data missing');
+            }
+
+            if (credentials === undefined) {
+                throw new Error('Missing credentials');
+            }
+
+            const authToken = credentials.authToken as string;
+            const axiosConfig: AxiosRequestConfig = {
+                method: 'GET' as Method,
+                url: `https://dashboard.alchemyapi.io/api/team-webhooks`,
+                headers: { 'X-Alchemy-Token': authToken },
+            }
+
+            try {
+                const response = await axios(axiosConfig);
+                const responseData = response.data;
+                const webhooks = responseData.data;
+                const network = networksData.network as string;
+                const webhook_type = actionsData.webhook_type as string;
+                let webhookExist = false;
+
+                for (const webhook of webhooks) {
+                    if (webhook.webhook_type === webhook_type && webhook.webhook_url === webhookFullUrl) {
+                        if (webhook_type !== 'ADDRESS_ACTIVITY')  {
+                            const app_id = inputParametersData.app_id as string || '';
+                            if (webhook.app_id === app_id) {
+                                webhookExist = true;
+                                break;
+                            }
+                            continue;
+                        }
+                        webhookExist = true;
+                        break;
+                    }
+                }
+
+                // Create a new webhook if it doesn't exists
+                if (!webhookExist) {
+                    const data: ICommonObject = {
+                        webhook_type,
+                        network,
+                        webhook_url: webhookFullUrl,
+                    };
+                    if (webhook_type === 'ADDRESS_ACTIVITY') {
+                        let addresses = inputParametersData.addresses as string || '[]';
+                        //Remove whitespaces
+                        addresses = addresses.replace(/\s/g, '');
+                        if (addresses) data.addresses = JSON.parse(addresses);
+                    } else {
+                        const app_id = inputParametersData.app_id as string || '';
+                        data.app_id = app_id;
+                    }
+
+                    const axiosCreateConfig: AxiosRequestConfig = {
+                        method: 'POST' as Method,
+                        url: `https://dashboard.alchemyapi.io/api/create-webhook`,
+                        data,
+                        headers: { 'X-Alchemy-Token': authToken },
+                    }
+                    let createResponseData = await axios(axiosCreateConfig);
+                    createResponseData = createResponseData.data;
+                    if (createResponseData && createResponseData.data && createResponseData.data.id) {
+                        return createResponseData.data.id;
+                    }
+                    return;
+                }
+            } catch (error) {
+                console.error(error);
+                return;
+            }
+        },
+
+        async deleteWebhook(nodeData: INodeData, webhookId: string): Promise<boolean> {
+            // delete webhook
+        }
+    }
+}
+module.exports = { nodeClass: MinedTransactionWebhook }
+```
+
+At the end of tutorial, when you start testing this node, a webhook will be created at Alchemy as shown below.
+
+<br />
+<img src="/alchemy-create-webhook.png" alt="Alchemy Create Webhook" height="auto" width='100%'></img>
+
+
+## Step 9
+Inside `deleteWebhook()`, we delete the webhook using `webhookId` created from `createWebhook()`.
+Refer more on:
+- [Delete Webhook on Alchemy](https://docs.alchemy.com/reference/delete-webhook)
+
+```jsx
+//...imports
+class MinedTransactionWebhook implements INode {
+	
+    //...properties
+    //...parameters
+
+    constructor() {
+        //...properties
+        //...parameters 
+    }
+    
+    webhookMethods = {
+		async createWebhook(nodeData: INodeData, webhookFullUrl: string): Promise<string | undefined> {
+            //...create webhook
+        },
+
+        async deleteWebhook(nodeData: INodeData, webhookId: string): Promise<boolean> {
+            const credentials = nodeData.credentials;
+
+			if (credentials === undefined) {
+				throw new Error('Missing credentials');
+			}
+	
+        	const authToken = credentials.authToken as string;
+			const axiosConfig: AxiosRequestConfig = {
+				method: 'DELETE' as Method,
+				url: `https://dashboard.alchemyapi.io/api/delete-webhook?webhook_id=${webhookId}`,
+				headers: { 'X-Alchemy-Token': authToken },
+			}
+
+			try {
+				await axios(axiosConfig);
+			} catch (error) {
+				console.error(error);
+				return false;
+			}
+			
+			return true;
+        }
+    }
+}
+module.exports = { nodeClass: MinedTransactionWebhook }
+```
+
+## Step 10
+Now that we have finished creating `webhookMethods`, we will need to create the main function to execute whenever the webhook is received.
+After `webhookMethods`, create a function name `runWebhook()`.
+
+```jsx
+//...imports
+class MinedTransactionWebhook implements INode {
+	
+    //...properties
+    //...parameters
+
+    constructor() {
+        //...properties
+        //...parameters 
+    }
+    
+    webhookMethods = {
+		async createWebhook(nodeData: INodeData, webhookFullUrl: string): Promise<string | undefined> {
+            //...create webhook
+        },
+
+        async deleteWebhook(nodeData: INodeData, webhookId: string): Promise<boolean> {
+           //...delete webhook
+        }
+    }
+
+    async runWebhook(nodeData: INodeData): Promise<IWebhookNodeExecutionData[] | null> {
+
+		const inputParametersData = nodeData.inputParameters;
+		const req = nodeData.req;
+	
+        if (inputParametersData === undefined) {
+            throw new Error('Required data missing');
+        }
+
+		if (req === undefined) {
+            throw new Error('Missing request');
+        }
+        
+		const returnData: ICommonObject[] = [];
+
+		returnData.push({
+			headers: req?.headers,
+			params: req?.params,
+			query: req?.query,
+			body: req?.body,
+			rawBody: (req as any).rawBody,
+			url: req?.url
+		});
+
+		return returnWebhookNodeExecutionData(returnData);
+	}
+}
+module.exports = { nodeClass: MinedTransactionWebhook }
+```
+
+## Step 11
+At root path `Outerbridge`, run `yarn run build` to build the node into `dist` folder which will be eventually picked up by `server`. 
+After build has successfully finished, run `yarn run dev` for development, or `yarn run start` for production.
+
+🎉 You have successfully created a webhook node!
+
+### Testing the node
+1. Open up a new canvas, add `MinedTransactionWebhook` node and fill in the inputs. Then click Save & Test Webhook.
+
+<br />
+<img src="/mined-transaction-webhook.gif" alt="Outerbridge Mined Transaction Webhook" height="auto" width='100%'></img>
+
+2. Go to [Alchemy Notify Page](https://dashboard.alchemyapi.io/notify), you will see a new webhook has been created. Click `Send Test Notification`.
+
+<br />
+<img src="/alchemy-send-webhook.png" alt="Alchemy Send Webhook" height="auto" width='100%'></img>
+
+3. Back to Outerbridge, you will now see the webhook has been received and output response is available.
+
+<br />
+<img src="/alchemy-webhook-received.png" alt="Alchemy Receive Webhook" height="auto" width='100%'></img>
+
+4. Go to [Alchemy Notify Page](https://dashboard.alchemyapi.io/notify), do a refresh and you will see the webhook is automatically deleted.
+
+<br />
+<img src="/alchemy-webhook-removed.png" alt="Alchemy Remove Webhook" height="auto" width='100%'></img>
+
+
+**Complete Code**
+```jsx
+import {
+    ICommonObject,
+	INode, 
+    INodeData, 
+    INodeParams, 
+    IWebhookNodeExecutionData, 
+    NodeType,
+} from '../../src/Interface';
+import {
+    returnWebhookNodeExecutionData
+} from '../../src/utils';
+import axios, { AxiosRequestConfig, Method } from 'axios';
+
+class MinedTransactionWebhook implements INode {
+	
+	label: string;
+    name: string;
+    type: NodeType;
+    description: string;
+    version: number;
+	icon: string;
+    incoming: number;
+	outgoing: number;
+    actions: INodeParams[];
+	credentials?: INodeParams[];
+	networks?: INodeParams[];
+    inputParameters?: INodeParams[];
+
+    constructor() {
+        this.label = 'Mined Transaction Webhook';
+		this.name = 'minedTransactionWebhook';
+		this.icon = 'mined-transaction-webhook.svg';
+		this.type = 'webhook';
+		this.version = 1.0;
+		this.description = 'Start workflow whenever Alchemy webhook mined transaction webhook call received';
+		this.incoming = 0;
+		this.outgoing = 1;
+        this.actions = [
+			{
+				label: 'Event',
+				name: 'webhook_type',
+				type: 'options',
+				options: [
+					{
+						label: 'Mined Transactions',
+						name: 'MINED_TRANSACTION',
+						description: 'Triggered anytime a transaction sent through your API key gets successfully mined.',
+					},
+				],
+				default: 'MINED_TRANSACTION',
+			},
+		] as INodeParams[];
+        this.networks = [
+			{
+				label: 'Network',
+				name: 'network',
+				type: 'options',
+				options: [
+					{
+						label: 'Ethereum Mainnet',
+						name: 'ETH_MAINNET',
+					},
+                ]
+            }
+        ] as INodeParams[];
+        this.credentials = [
+			{
+				label: 'Credential Method',
+				name: 'credentialMethod',
+				type: 'options',
+				options: [
+					{
+						label: 'Alchemy API Key',
+						name: 'alchemyApi',
+					},
+				],
+				default: 'alchemyApi',
+			},
+		] as INodeParams[];
+        this.inputParameters = [
+			{
+				label: 'App ID',
+				name: 'app_id',
+				type: 'string',
+				default: '',
+				description: 'App ID can be found within the URL of your specific app. For example, given the URL https://dashboard.alchemyapi.io/apps/xfu8frt3wf94j7h5 your App ID would be xfu8frt3wf94j7h5',
+			},
+		] as INodeParams[];
+    }
+
+    webhookMethods = {
+		async createWebhook(nodeData: INodeData, webhookFullUrl: string): Promise<string | undefined> {
+            // Check if webhook exists
+			const credentials = nodeData.credentials;
+			const inputParametersData = nodeData.inputParameters;
+			const networksData = nodeData.networks;
+			const actionsData = nodeData.actions;
+
+			if (inputParametersData === undefined || actionsData === undefined || networksData === undefined) {
+				throw new Error('Required data missing');
+			}
+
+			if (credentials === undefined) {
+				throw new Error('Missing credentials');
+			}
+	
+			const authToken = credentials.authToken as string;
+			const axiosConfig: AxiosRequestConfig = {
+				method: 'GET' as Method,
+				url: `https://dashboard.alchemyapi.io/api/team-webhooks`,
+				headers: { 'X-Alchemy-Token': authToken },
+			}
+
+			try {
+				const response = await axios(axiosConfig);
+				const responseData = response.data;
+				const webhooks = responseData.data;
+				const network = networksData.network as string;
+				const webhook_type = actionsData.webhook_type as string;
+				let webhookExist = false;
+
+				for (const webhook of webhooks) {
+					if (webhook.webhook_type === webhook_type && webhook.webhook_url === webhookFullUrl) {
+						if (webhook_type !== 'ADDRESS_ACTIVITY')  {
+							const app_id = inputParametersData.app_id as string || '';
+							if (webhook.app_id === app_id) {
+								webhookExist = true;
+								break;
+							}
+							continue;
+						}
+						webhookExist = true;
+						break;
+					}
+				}
+
+                // Create a new webhook if it doesn't exists
+				if (!webhookExist) {
+					const data: ICommonObject = {
+						webhook_type,
+						network,
+						webhook_url: webhookFullUrl,
+					};
+					if (webhook_type === 'ADDRESS_ACTIVITY') {
+						let addresses = inputParametersData.addresses as string || '[]';
+						//Remove whitespaces
+						addresses = addresses.replace(/\s/g, '');
+						if (addresses) data.addresses = JSON.parse(addresses);
+					} else {
+						const app_id = inputParametersData.app_id as string || '';
+						data.app_id = app_id;
+					}
+
+					const axiosCreateConfig: AxiosRequestConfig = {
+						method: 'POST' as Method,
+						url: `https://dashboard.alchemyapi.io/api/create-webhook`,
+						data,
+						headers: { 'X-Alchemy-Token': authToken },
+					}
+					let createResponseData = await axios(axiosCreateConfig);
+					createResponseData = createResponseData.data;
+					if (createResponseData && createResponseData.data && createResponseData.data.id) {
+						return createResponseData.data.id;
+					}
+					return;
+				}
+			} catch (error) {
+				console.error(error);
+				return;
+			}
+        },
+
+        async deleteWebhook(nodeData: INodeData, webhookId: string): Promise<boolean> {
+            const credentials = nodeData.credentials;
+
+			if (credentials === undefined) {
+				throw new Error('Missing credentials');
+			}
+	
+        	const authToken = credentials.authToken as string;
+			const axiosConfig: AxiosRequestConfig = {
+				method: 'DELETE' as Method,
+				url: `https://dashboard.alchemyapi.io/api/delete-webhook?webhook_id=${webhookId}`,
+				headers: { 'X-Alchemy-Token': authToken },
+			}
+
+			try {
+				await axios(axiosConfig);
+			} catch (error) {
+				console.error(error);
+				return false;
+			}
+			
+			return true;
+        }
+    }
+
+    async runWebhook(nodeData: INodeData): Promise<IWebhookNodeExecutionData[] | null> {
+
+		const inputParametersData = nodeData.inputParameters;
+		const req = nodeData.req;
+	
+        if (inputParametersData === undefined) {
+            throw new Error('Required data missing');
+        }
+
+		if (req === undefined) {
+            throw new Error('Missing request');
+        }
+
+		const returnData: ICommonObject[] = [];
+
+		returnData.push({
+			headers: req?.headers,
+			params: req?.params,
+			query: req?.query,
+			body: req?.body,
+			rawBody: (req as any).rawBody,
+			url: req?.url
+		});
+
+		return returnWebhookNodeExecutionData(returnData);
+	}
+}
+module.exports = { nodeClass: MinedTransactionWebhook }
+```
+

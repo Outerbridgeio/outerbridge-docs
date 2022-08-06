@@ -20,7 +20,7 @@ export default {
       <meta name="description" content="Outerbridge - Automate Web3 and Web2 applications" />
       <meta name="og:description" content="Outerbridge - Automate Web3 and Web2 applications" />
       <meta name="og:title" content="Outerbridge - Automate Web3 and Web2 applications" />
-      <meta name="og:image" content="https://nextra.vercel.app/og.png" />
+      <meta name="og:image" content="https://www.outerbridge.io/outerbridge_brand.svg" />
       <meta name="apple-mobile-web-app-title" content="Outerbridge" />
       <link
         rel="apple-touch-icon"

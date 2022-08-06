@@ -1,4 +1,5 @@
 {
-  "node": "Create New Node",
-  "credential": "Create New Credential"
+  "trigger-node": "Trigger Node",
+  "action-node": "Action Node",
+  "webhook-node": "Webhook Node"
 }

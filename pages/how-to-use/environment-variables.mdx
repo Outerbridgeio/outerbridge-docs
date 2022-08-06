@@ -1,0 +1,11 @@
+# Environment Variables
+
+Environment variables are located in the file `.env` at `Outerbridge/packages/server`.
+
+| Variable              | Type      | Default       | Description                                                                                                   |
+| :---                  | :---      | :---          | :---                                                                                                          |
+| PORT                  | Number    | 3000          | The HTTP port Outerbridge runs on.                                                                            |
+| PASSPHRASE            | String    | MYPASSPHRASE  | Passphrase to create `encryption key`.                                                                        |
+| NODE_ENV              | String    | development   | Node environment to allow accessing ui when set to `development`. For production, set to `production`.        |
+| ENABLE_TUNNEL         | Boolean   | true          | Enable Outerbridge to have tunnel URL. This is for 3rd party webhook services to discover Outerbridge on web. |
+| EXECUTION_TIMEOUT     | Number    |               | Timeout before an execution is terminated. Variable is not set by default.                                    |
