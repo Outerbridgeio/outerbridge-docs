@@ -1,6 +1,7 @@
 # Node Reference
 
-## Node Properties
+## Node Properties 
+`INodeProperties`
 
 | Properties      | Type      | Description                                                                                                                                             |
 | :---            | :---      | :---                                                                                                                                                    |
@@ -9,7 +10,7 @@
 | icon            | String    | Icon name in the folder                                                                                                                                 |
 | type            | Enum      | Type of node. Can be either `trigger` or `action` or `webhook`                                                                                          |
 | version         | Number    | Version of the node                                                                                                                                     |
-| description     | String    | Description of the node                                                                                                                                 |
+| description `(optional)`    | String    | Description of the node                                                                                                                                 |
 | incoming        | Number    | Number of input edges this node is expected to receive from upstream. From ui, this corresponds to number of dots available at the top of the node.     |
 | outgoing        | Number    | Number of output edges this node is expected to emit to downstream. From ui, this corresponds to number of dots available at the bottom of the node.    |          
 
@@ -40,15 +41,17 @@ class ExampleBlock implements INode {
 ```
 
 ## Node Parameters
+`INodeParams[]`
 
-There are 4 node parameters. They are designed to give a better user experience in ui, allowing user to enter inputs step by step.
+There are 4 main groups of node parameters.
+They are designed to give a better user experience in ui, allowing user to enter inputs step by step.
 
-| Parameters      | Description     
-| :---            | :---      
-| Actions         | Type of action/event this node is going to execute or get triggered
-| Networks        | Blockchain network to execute on. Only used for onchain nodes
-| Credentials     | Credential needed to authenticate the node
-| InputParameters | Remaining input parameters (e.g: query params, body)
+| Parameters      			   | Description     
+| :---            			   | :---      
+| actions `(optional)`         | Type of action/event this node is going to execute or get triggered
+| networks `(optional)`        | Blockchain network to execute on. Only used for onchain nodes
+| credentials `(optional)`     | Credential needed to authenticate the node
+| inputParameters `(optional)` | Remaining input parameters (e.g: query params, body)
 
 <br />
 <img src="/node-parameters.gif" alt="Outerbridge Node Parameters" height="auto" width='100%'></img>
@@ -117,3 +120,511 @@ class ExampleBlock implements INode {
         ] as INodeParams[];
     }
 ```
+
+## Node Parameters Properties
+`INodeParams`
+
+Each node parameter has the following properties:
+
+| Properties      						| Type      																		| Description                                                                                                                                             
+| :---            						| :---      																		| :---                                                                                                                                                    
+| label           						| String    																		| Display name of parameter                                                                                                                                
+| name            						| String    																		| Actual name of parameter using [CamelCase](https://wiki.c2.com/?CamelCase)                                                                               
+| type            						| Enum [`NodeParamsType`](/reference/node#node-parameter-type)     					| Type of parameter                
+| default `(optional)`       			| String, Number, Boolean, Object, Array 											| Default value of parameter                                                                                      
+| description `(optional)`   			| String    																		| Description of parameter                                                                                                                                     
+| options `(optional)`    				| Array [`INodeOptionsValue[]`](/reference/node#node-parameter-option-properties)	| Parameter options. Used with `options`                                                                                                               
+| array `(optional)`        			| Array [`INodeParams[]`](/reference/node#node-parameters-properties)   			| Parameter array. Used with `array`. See [array example](/reference/node#array)     
+| loadMethod `(optional)`       		| String    																		| Method name used to load async options. Used with `asyncOptions`. See [asyncOptions example](/reference/node#asyncoptions)       
+| loadFromDbCollections `(optional)`	| `DbCollectionName[]`    															| Which database collection to retrieve from server. Used with `asyncOptions` and `loadMethod`. See [asyncOptions example](/reference/node#asyncoptions)         
+| optional `(optional)`					| Boolean, [`INodeDisplay`](/reference/node#node-parameter-display) 				| To indicate if this parameter is an optional field. If not specified, parameter is mandatory
+| show `(optional)`						| [`INodeDisplay`](/reference/node#node-parameter-display) 							| Show this parameter if condition is met
+| hide `(optional)`						| [`INodeDisplay`](/reference/node#node-parameter-display) 							| Hide this parameter if condition is met
+| rows `(optional)`						| Number 																			| Number of rows for the parameter input field
+| placeholder `(optional)`				| String 																			| Placeholder text of the parameter input field
+
+
+## Node Parameter Option Properties
+`INodeOptionsValue`
+
+| Properties      						| Type      													| Description                                                                                                                                             
+| :---            						| :---      													| :---                                                                                                                                                    
+| label           						| String    													| Display name of option                                                                                                                                
+| name            						| String    													| Actual name of option using [CamelCase](https://wiki.c2.com/?CamelCase)                                                                               
+| description `(optional)`   			| String    													| Description of option                                                                                                                                     
+| parentGroup `(optional)`   			| String    													| Group of option                                                                                                                                     
+| inputParameters `(optional)`   		| String    													| Description of additional parameter needed for this option. See [inputParameters example](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/src/ETHOperations.ts)                                                                                                                                    
+| exampleParameters `(optional)`   		| String    													| Example of additional parameter needed for this option. See [exampleParameters example](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/src/ETHOperations.ts)                                                                                                                                  
+| exampleResponse `(optional)`   		| Object    													| Example of output response for this option. See [exampleResponse example](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/src/ETHOperations.ts)                                                                                                                                      
+| show `(optional)`						| [`INodeDisplay`](/reference/node#node-parameter-display) 		| Show this option if condition is met
+| hide `(optional)`						| [`INodeDisplay`](/reference/node#node-parameter-display) 		| Hide this option if condition is met
+| hideRegisteredCredential `(optional)`	| Boolean 														| Only used on `credentialMethod` option to hide registeredCredentials. See [hideRegisteredCredential example](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/HTTP/HTTP.ts#L88)  
+
+
+## Node Parameter Display
+`INodeDisplay`
+
+Can be used with these parameter properties: `show`, `hide` to display or hide the parameter.
+This is useful when you want to hide a specific parameter depending on other parameters.
+
+**Example**
+```jsx
+this.inputParameters = [
+	{
+		label: 'Input 1',
+		name: 'input1',
+		type: 'options',
+		options: [
+			{
+				label: 'Option A',
+				name: 'optionA',
+			},
+			{
+				label: 'Option B',
+				name: 'optionB',
+			},
+			{
+				label: 'Option C',
+				name: 'optionC',
+			},
+			{
+				label: 'Option D',
+				name: 'optionD',
+			},
+		]
+	},
+	{
+		label: 'Input 2',
+		name: 'input2',
+		type: 'string',
+		description: 'Only show when Input1 has value of optionA OR optionB',
+		show: {
+			'inputParameters.input1': ['optionA', 'optionB']
+		}
+	},
+	{
+		label: 'Input 3',
+		name: 'input3',
+		type: 'string',
+		description: 'Only show when Input1 has value of optionC',
+		show: {
+			'inputParameters.input1': ['optionC']
+		}
+	},
+	{
+		label: 'Input 4',
+		name: 'input4',
+		type: 'string',
+		description: 'Only hide when Input1 has value of optionD',
+		show: {
+			'inputParameters.input1': ['optionD']
+		}
+	}
+]
+```
+It supports string and regex match as well:
+```jsx
+this.inputParameters = [
+	{
+		label: 'Input 1',
+		name: 'input1',
+		type: 'string',
+	},
+	{
+		label: 'Input 2',
+		name: 'input2',
+		type: 'string',
+		description: 'Only show when Input1 === "matchstring"',
+		show: {
+			'inputParameters.input1': "matchstring"
+		}
+	},
+	{
+		label: 'Input 3',
+		name: 'input3',
+		type: 'string',
+		description: 'Only show when Input1 matches the regex pattern where string is not empty or blank',
+		show: {
+			'inputParameters.input1': '(.|\\s)*\\S(.|\\s)*'
+		}
+	}
+]
+```
+When used on [`options properties`](/reference/node#node-parameter-option-properties) to display/hide a specific option depending on other parameters:
+```jsx
+this.inputParameters = [
+	{
+		label: 'Input 1',
+		name: 'input1',
+		type: 'options',
+		options: [
+			{
+				label: 'Option A',
+				name: 'optionA',
+			},
+			{
+				label: 'Option B',
+				name: 'optionB',
+			}
+		]
+	},
+	{
+		label: 'Input 2',
+		name: 'input2',
+		type: 'options',
+		options: [
+			{
+				label: 'Option C',
+				name: 'optionC',
+				description: 'Only show optionC when Input1 has value of optionA',
+				show: {
+					'inputParameters.input1': ['optionA']
+				}
+			},
+			{
+				label: 'Option D',
+				name: 'optionD',
+				description: 'Only hide optionD when Input1 has value of optionA',
+				hide: {
+					'inputParameters.input1': ['optionA']
+				}
+			}
+		]
+	}
+]
+```
+
+`INodeDisplay` can also be used on `optional` parameter properties to make a specific parameter become an optional parameter depending on other parameters.
+```jsx
+this.inputParameters = [
+	{
+		label: 'Input 1',
+		name: 'input1',
+		type: 'options',
+		options: [
+			{
+				label: 'Option A',
+				name: 'optionA',
+			},
+			{
+				label: 'Option B',
+				name: 'optionB',
+			}
+		]
+	},
+	{
+		label: 'Input 2',
+		name: 'input2',
+		type: 'string',
+		description: 'Make Input2 become optional if Input1 has value of optionB, otherwise it is mandatory',
+		optional: {
+			'inputParameters.input1': ['optionB']
+		}
+	},
+]
+```
+
+## Node Parameter Type
+`NodeParamsType`
+
+A parameter can be one of these types: `string`, `number`, `boolean`, `options`, `asyncOptions`, `array`, `password`, `json`, `code`, `date`, `file`.
+
+### String
+```jsx
+{
+	label: 'Input String',
+	name: 'inputString',
+	type: 'string',
+}
+
+// Get as string
+const inputString = nodeData[paramCategory].inputString as string;
+```
+<br />
+<img src="/input-string.png" alt="Outerbridge Input String" height="auto" width='max-content'></img>
+
+### Number
+```jsx
+{
+	label: 'Input Number',
+	name: 'inputNumber',
+	type: 'number',
+}
+
+// Get as number
+const inputNumber = nodeData[paramCategory].inputNumber as number;
+```
+<br />
+<img src="/input-number.png" alt="Outerbridge Input Number" height="auto" width='max-content'></img>
+
+### Options
+```jsx
+{
+	label: 'Input Options',
+	name: 'inputOptions',
+	type: 'options',
+	options: [
+		{
+			label: 'Option A',
+			name: 'optionA',
+		},
+		{
+			label: 'Option B',
+			name: 'optionB',
+		},
+	]
+}
+
+// Get as string
+const inputOptions = nodeData[paramCategory].inputOptions as string;
+```
+<br />
+<img src="/input-options.png" alt="Outerbridge Input Options" height="auto" width='max-content'></img>
+
+
+### AsyncOptions
+`AsyncOptions` can be used when we want to display parameter options depending on the value of other parameters.
+It has to be used with `loadMethod` to specify which function to get the options.
+
+```jsx
+class ExampleAsyncOption implements INode {
+	
+    //...properties
+    //...parameters
+    inputParameters?: INodeParams[];
+
+    constructor() {
+        //...properties
+        //...parameters
+		this.inputParameters = [
+			{
+				label: 'Input 1',
+				name: 'input1',
+				type: 'options',
+				options: [
+					{
+						label: 'Option A',
+						name: 'optionA',
+					},
+					{
+						label: 'Option B',
+						name: 'optionB',
+					}
+				]
+			},
+			{
+				label: 'Input 2',
+				name: 'input2',
+				type: 'asyncOptions',
+				loadMethod: 'getInput2Option'
+			},
+		] as INodeParams[];
+    }
+    
+    loadMethods = {
+		async getInput2Option(nodeData: INodeData): Promise<INodeOptionsValue[]> {
+
+			const returnData: INodeOptionsValue[] = [];
+            const inputParametersData = nodeData.inputParameters;
+
+            if (inputParametersData === undefined) throw new Error('Required data missing');
+
+			const input1 = inputParametersData.input1 as string;
+
+			if (input1 === 'optionA') {
+				returnData.push({
+					label: 'A Selected',
+                    description: 'Only visible when Option A selected',
+					name: 'aSelected',
+				});
+
+			} else if (input1 === 'optionB') {
+				returnData.push({
+					label: 'B Selected',
+                    description: 'Only visible when Option B selected',
+					name: 'bSelected',
+				});
+			}
+
+			return returnData;
+        }
+    }
+}
+```
+<br />
+<img src="/async-options.gif" alt="Outerbridge Async Options" height="auto" width='max-content'></img>
+
+`AsyncOptions` can also be used with `loadFromDbCollections` to retrieve database collection.
+
+```jsx
+class ExampleAsyncOption implements INode {
+	
+    //...properties
+    //...parameters
+    inputParameters?: INodeParams[];
+
+    constructor() {
+        //...properties
+        //...parameters
+		this.inputParameters = [
+			{
+				label: 'Select Workflow',
+				name: 'workflow',
+				type: 'asyncOptions',
+				loadFromDbCollections: ['Workflow'],
+				loadMethod: 'getWorkflows',
+			}
+		] as INodeParams[];
+    }
+    
+    loadMethods = {
+		async getWorkflows(nodeData: INodeData, dbCollection?: IDbCollection): Promise<INodeOptionsValue[]> {
+
+			const returnData: INodeOptionsValue[] = [];
+			const workflows: IWorkflow[] = dbCollection.Workflow;
+
+			for (let i = 0; i < workflows.length; i+=1) {
+				returnData.push({
+					label: workflows[i].name,
+					name: workflows[i]._id,
+				});
+			}
+
+			return returnData;
+        }
+    }
+}
+```
+See `ContractEventTrigger.ts` [example](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/ContractEventTrigger/ContractEventTrigger.ts#L62)
+
+
+### Array
+`Array` can be used whenever we want to display a set of parameter collections.
+
+```jsx
+{
+	label: 'Input Array',
+	name: 'inputArray',
+	type: 'array',
+	array: [
+		{
+			label: 'Child Input Options',
+			name: 'childInputOptions',
+			type: 'options',
+			options: [
+				{
+					label: 'Option A',
+					name: 'optionA',
+				},
+				{
+					label: 'Option B',
+					name: 'optionB',
+				},
+			]
+		},
+		{
+			label: 'Child Input String',
+			name: 'childInputString',
+			type: 'string',
+		}
+	]
+}
+
+// Declare custom array interface
+interface IArray {
+	childInputOptions: string;
+	childInputString: string;
+}
+for (const item of nodeData[paramCategory].inputArray as IArray[]) {
+	console.log(item.childInputOptions)
+	console.log(item.childInputString)
+}
+```
+<br />
+<img src="/input-array.png" alt="Outerbridge Input Array" height="auto" width='max-content'></img>
+
+See `Scheduler.ts` [example](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Scheduler/Scheduler.ts#L48)
+
+### Password
+```jsx
+{
+	label: 'Input Password',
+	name: 'inputPW',
+	type: 'password',
+}
+
+// Get as string
+const inputPW = nodeData[paramCategory].inputPW as string;
+```
+<br />
+<img src="/input-password.png" alt="Outerbridge Input Password" height="auto" width='max-content'></img>
+
+### Json
+Can be used when the parameter is of JSON format `{}` or an array `[]`.
+```jsx
+{
+	label: 'Input Json',
+	name: 'inputJson',
+	type: 'json',
+}
+
+// Get as string
+let inputJson = nodeData[paramCategory].inputJson as string;
+//Remove whitespaces
+inputJson = inputJson.replace(/\s/g, '');	
+try {
+	const parsedInputJson = JSON.parse(inputJson);
+} catch(error) {
+	throw handleErrorMessage(error);
+}
+```
+<br />
+<img src="/input-json.png" alt="Outerbridge Input Json" height="auto" width='max-content'></img>
+
+### Code
+```jsx
+{
+	label: 'Input Code',
+	name: 'inputCode',
+	type: 'code',
+}
+
+// Get as string
+const inputCode = nodeData[paramCategory].inputCode as string;
+```
+<br />
+<img src="/input-code.png" alt="Outerbridge Input Code" height="auto" width='max-content'></img>
+
+### Date
+```jsx
+{
+	label: 'Input Date',
+	name: 'inputDate',
+	type: 'date',
+}
+
+// Get as string
+const inputDate = nodeData[paramCategory].inputDate as string;
+// Convert to milliseconds
+const startTime = Date.parse(inputDate);
+```
+<br />
+<img src="/input-date.png" alt="Outerbridge Input Date" height="auto" width='max-content'></img>
+
+
+### File
+```jsx
+{
+	label: 'Input File',
+	name: 'inputFile',
+	type: 'file',
+}
+
+// Get as string (base64)
+const fileBase64 = nodeData[paramCategory].inputFile as string;
+// Get file as buffer
+const splitDataURI = fileBase64.split(',');
+const bf = Buffer.from(splitDataURI[1], "base64");
+```
+<br />
+<img src="/input-file.png" alt="Outerbridge Input File" height="auto" width='max-content'></img>
