@@ -1,6 +1,6 @@
 # Outerbridge - Automate Web3 and Web2 applications
 
-Docs page for Outerbridge. 
+Docs page for Outerbridge
 
 ![Outerbridge](/public/outerbridge_brand.svg)
 
