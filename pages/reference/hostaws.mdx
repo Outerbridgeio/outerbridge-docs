@@ -1,0 +1,304 @@
+# Host Outerbridge via AWS
+
+## Launch EC2 Instance
+This walkthrough will skip how to launch an EC2 instance. There's plenty of resources and tutorial on how to do that.
+In this case we are launching a EC2 instance with t2.micro.
+
+After EC2 instance has successfully spinned up, SSH into EC2 instance.
+
+## Install Node
+1. ```bash
+   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+   ```
+
+2. ```bash
+   . ~/.nvm/nvm.sh
+   ```
+   
+3. ```bash
+   nvm install --lts
+   ```
+
+## Install Yarn
+```bash
+npm install yarn -g
+```
+
+## Install Lerna
+```bash
+npm install -g lerna
+```
+
+## Install MongoDB
+Follow [instruction](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-amazon)
+
+1. ```bash
+   sudo nano /etc/yum.repos.d/mongodb-org-6.0.repo
+   ```
+   
+2. Copy paste the following into the file you just created above:
+   ```bash
+   [mongodb-org-6.0]
+   name=MongoDB Repository
+   baseurl=https://repo.mongodb.org/yum/amazon/2/mongodb-org/6.0/x86_64/
+   gpgcheck=1
+   enabled=1
+   gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc
+   ```
+   Ctrl+X to exit, press Y to save the file.
+
+3. ```bash
+   sudo systemctl start mongod
+   ```
+
+4. ```bash
+   sudo systemctl status mongod
+   ```
+
+5. ```bash
+   sudo systemctl enable mongod
+   ```
+
+## Install Git
+```bash
+sudo yum install git -y
+```
+
+## Install pm2
+```bash
+npm install pm2 -g
+```
+
+## Setup the project
+Two ways to setup:
+
+### Install Outerbridge via NPM:
+1. ```bash
+   npm install -g outerbridge
+   ```
+
+2. ```bash
+   npx outerbridge start
+   ```
+
+3. App is now ready on port 3000.
+
+4. To view the app, create 2 new inbound rules on the EC2 instance. Custom TCP Port 3000 that allows anywhere to access.
+
+5. You can then view the app: `<Your Public IPv4 DNS>`:3000. Example: `http://ec2-18-222-246-22.eu-west-1.compute.amazonaws.com:3000`.
+
+
+### Install via Github
+
+1. ```bash
+   git clone https://github.com/Outerbridgeio/Outerbridge.git
+   ```
+
+2. ```bash
+   cd Outerbridge
+   ```
+
+3. ```bash
+   yarn bootstrap
+   ```
+   Depending on your RAM size, for t2.micro this could take a while.
+
+4. ```bash
+   yarn build
+   ```
+
+5. ```bash
+   yarn start
+   ```
+
+6. App is now ready on port 3000.
+
+7. To view the app, create 2 new inbound rules on the EC2 instance. Custom TCP Port 3000 that allows anywhere to access.
+
+8. You can then view the app: `<Your Public IPv4 DNS>`:3000. Example: `http://ec2-18-222-246-22.eu-west-1.compute.amazonaws.com:3000`.
+
+
+## Troubleshoot yarn bootstrap
+
+In cases where t2.micro is taking forever on `yarn bootstrap`, here is the workaround:
+
+1. Install the dependencies of each package independently. `cd` into each package: `ui`, `components` and `server` and do `yarn install` for each of them.
+
+2. Back to the Outerbridge root path, do `yarn bootstrap`. Because the dependencies have been installed, the operation could be faster.
+
+
+## Troubleshoot yarn build
+
+Most of the time, it is stuck at building the `ui` folder. As a temporary workaround:
+
+1. Back to your EC2 home path (/home/ec2-user/) and do 
+   ```bash
+   git clone https://github.com/Outerbridgeio/OuterbridgeUIBuild.git
+   ```
+
+2. Copy the build folder to Outerbridge ui folder:
+   ```bash
+   cp -r OuterbridgeUIBuild/build/ Outerbridge/packages/ui/
+   ```
+
+3. ```bash
+   cd Outerbridge
+   ```
+
+4. Build `server` and `components` independently. `cd` into package: `components` and `server` and do `yarn build` for each of them.
+
+5. Back to the Outerbridge root path, do `yarn start` to see if app can be started.
+
+
+## Troubleshoot permission to start
+
+If you run into issue where `./run permission denied`. Do:
+```bash
+chmod -R 777 Outerbridge
+```
+to allow full access on the Outerbridge folder.
+
+
+## Using NGINX
+
+If you want to get rid of the :3000 on the url and have a custom domain, you can use NGINX to reverse proxy port 80 to 3000
+So user will be able to open the app using your domain. Example: `http://yourdomain.com`.
+
+1. ```bash
+   sudo amazon-linux-extras install -y nginx1
+   ```
+
+2. ```bash
+   nginx -v
+   ```
+   
+3. ```bash
+   sudo systemctl start nginx
+   ```
+
+4. ```bash
+   sudo nano /etc/nginx/conf.d/outerbridge.conf
+   ```
+
+5. Copy paste the following and change to your domain:
+   ```bash
+   server {
+       listen 80;
+       listen [::]:80;
+       server_name yourdomain.com; #Example: demo.outerbridge.io
+
+       location / {
+           proxy_pass http://localhost:3000;
+           proxy_http_version 1.1;
+           proxy_set_header Host $host;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection 'upgrade';
+           proxy_cache_bypass $http_upgrade;
+       }
+   }
+   ```
+
+6. ```bash
+   sudo systemctl restart nginx
+   ```
+
+7. Go to your DNS provider, and add a new A record with IP address using Public IPv4 address from EC2 instance.
+
+8. You should now be able to open the app: `http://yourdomain.com`.
+
+9. You can proceed to delete the 2 custom ports 3000 TCP inbound rules. They won't be needed anymore.
+
+
+## Install Certbot to have HTTPS
+
+If you like your app to have `https://yourdomain.com`. Here is how:
+
+1. ```bash
+   sudo yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+   ```
+
+2. ```bash
+   sudo yum-config-manager --enable epel 
+   ```
+
+3. ```bash
+   sudo yum install certbot python2-certbot-nginx
+   ```
+
+4. ```bash
+   certbot --version
+   ```
+
+5. ```bash
+   sudo certbot --nginx
+   ```
+
+6. If cert expired, simply renew:
+   ```bash
+   sudo certbot renew --dry-run
+   ```
+
+7. You can now open the app: `https://yourdomain.com`.
+
+## Backup MongoDB
+
+You can backup MongoDB database into S3 bucket. Here is the [article](https://bansalnagesh.medium.com/backing-up-mongodb-on-aws-ec2-to-s3-b045b5727fd6) that can be followed:
+
+1. ```bash
+   sudo yum --enablerepo epel install s3cmd
+   ```
+
+2. ```bash
+   s3cmd --configure
+   ```
+
+3. ```bash
+   sudo nano mongo_backup.sh
+   ```
+
+4. Copy paste and replace values:
+   ```bash
+   #!/bin/bash
+ 
+   #Force file syncronization and lock writes
+   mongo admin --eval "printjson(db.fsyncLock())"
+
+   MONGODUMP_PATH="/usr/bin/mongodump"
+   MONGO_DATABASE="dbname_here" #replace with your database name
+
+   TIMESTAMP=`date +%F-%H%M`
+   S3_BUCKET_NAME="bucketname_here" #replace with your bucket name on Amazon S3
+   S3_BUCKET_PATH="mongodb-backups"
+
+   # Create backup
+   $MONGODUMP_PATH -d $MONGO_DATABASE
+
+   # Add timestamp to backup
+   mv dump mongodb-$HOSTNAME-$TIMESTAMP
+   tar cf mongodb-$HOSTNAME-$TIMESTAMP.tar mongodb-$HOSTNAME-$TIMESTAMP
+
+   # Upload to S3
+   s3cmd put mongodb-$HOSTNAME-$TIMESTAMP.tar s3://$S3_BUCKET_NAME/$S3_BUCKET_PATH/mongodb-$HOSTNAME-$TIMESTAMP.tar
+
+   #Unlock database writes
+   mongo admin --eval "printjson(db.fsyncUnlock())"
+   #Delete local files
+   rm -rf mongodb-*
+   ```
+
+5. ```bash
+   bash mongo_backup.sh
+   ```
+
+6. Go to S3 bucket, you should see a tar file.
+
+7. Setup cron
+   ```bash
+   crontab -e
+   ```
+   
+8. Copy paste:
+   ```bash
+   #1st of every month at 9 am
+   00 09 1 * * /bin/bash /home/ec2-user/mongo_backup.sh
+   ```

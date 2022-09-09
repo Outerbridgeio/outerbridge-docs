@@ -1,3 +1,4 @@
 {
-  "node": "Node"
+  "node": "Node",
+  "hostaws": "Host via AWS"
 }

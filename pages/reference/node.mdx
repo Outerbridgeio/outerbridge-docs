@@ -628,3 +628,26 @@ const bf = Buffer.from(splitDataURI[1], "base64");
 ```
 <br />
 <img src="/input-file.png" alt="Outerbridge Input File" height="auto" width='max-content'></img>
+
+
+### Folder
+```jsx
+{
+	label: 'Input Folder',
+	name: 'inputFolder',
+	type: 'folder',
+}
+
+const folderContent = nodeData[paramCategory].inputFolder as string;
+const base64Array = JSON.parse(folderContent.replace(/\s/g, ''));
+
+for (let i = 0; i < base64Array.length; i+=1 ) {
+	const fileBase64 = base64Array[i];
+	const splitDataURI = fileBase64.split(',');
+
+	const filepath = (splitDataURI.pop() || 'filepath:').split(':')[1];
+	const bf = Buffer.from((splitDataURI.pop() || ''), "base64");
+}
+```
+<br />
+<img src="/input-folder.png" alt="Outerbridge Input Folder" height="auto" width='max-content'></img>
