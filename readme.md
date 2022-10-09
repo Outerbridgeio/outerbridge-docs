@@ -24,15 +24,15 @@ Docs page for Outerbridge.
 
 4. Build all the code:
 	```
-	yarn run build
+	yarn build
 	```
 
 5. Start the app:
 	```
-	yarn run start
+	yarn start
 	```
 
 You can now access the app on `http://localhost:3000/`.
 
 ## Development
-For development build, run: `yarn run dev`. Any changes will reload the app automatically.
+For development build, run: `yarn dev`. Any changes will reload the app automatically.
