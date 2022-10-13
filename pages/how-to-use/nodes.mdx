@@ -2,14 +2,16 @@ import Callout from 'nextra-theme-docs/callout'
 
 # Nodes
 
-A node is script or function written to perform a single action. 
+A node is script or function written to perform a single action.
 For instance: API calls using [axios](https://github.com/axios/axios), cron jobs, set timeout, send email and etc.
 This is how node works:
+
 1. Receive inputs from user
 2. Execute function using the input parameters received
 3. Emit and save results
 
 Three types of nodes in Outerbridge:
+
 - Action Node
 - Trigger Node
 - Webhook Node
@@ -20,7 +22,7 @@ Three types of nodes in Outerbridge:
 
 ## Action Node
 
-Action node is a node that performs an action / execute a function. 
+Action node is a node that performs an action / execute a function.
 
 ### How to test action node
 
@@ -30,12 +32,16 @@ Action node is a node that performs an action / execute a function.
 4. Lastly, click Test Node to test the action node
 
 <br />
-<img src="/action-node-test.gif" alt="Outerbridge Action Node" height="auto" width='100%'></img>
-
+<img
+  src="/action-node-test.gif"
+  alt="Outerbridge Action Node"
+  height="auto"
+  width="100%"
+></img>
 
 ## Trigger Node
 
-Trigger node is a node that listens to event via [NodeJS Event Emitter](https://nodejs.dev/learn/the-nodejs-event-emitter).
+Trigger node is a node that listens to event via [NodeJS Event Emitter](https://nodejs.dev/en/learn/the-nodejs-event-emitter/).
 
 ### How to test trigger node
 
@@ -46,7 +52,12 @@ Trigger node is a node that listens to event via [NodeJS Event Emitter](https://
 5. Send the event (e.g: an email, a token transfer)
 
 <br />
-<img src="/trigger-node-test.gif" alt="Outerbridge Trigger Node" height="auto" width='100%'></img>
+<img
+  src="/trigger-node-test.gif"
+  alt="Outerbridge Trigger Node"
+  height="auto"
+  width="100%"
+></img>
 
 ## Webhook Node
 
@@ -61,4 +72,9 @@ Webhook node is a node that listens to webhook calls.
 5. Call the Webhook URL
 
 <br />
-<img src="/webhook-node-test.gif" alt="Outerbridge Webhook Node" height="auto" width='100%'></img>
+<img
+  src="/webhook-node-test.gif"
+  alt="Outerbridge Webhook Node"
+  height="auto"
+  width="100%"
+></img>
