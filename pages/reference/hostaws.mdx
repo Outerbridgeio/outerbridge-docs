@@ -1,163 +1,102 @@
 # Host Outerbridge via AWS
 
 ## Launch EC2 Instance
+
 This walkthrough will skip how to launch an EC2 instance. There's plenty of resources and tutorial on how to do that.
 In this case we are launching a EC2 instance with t2.micro.
 
 After EC2 instance has successfully spinned up, SSH into EC2 instance.
 
-## Install Node
-1. ```bash
-   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
-   ```
+## Install Docker
 
-2. ```bash
-   . ~/.nvm/nvm.sh
-   ```
-   
-3. ```bash
-   nvm install --lts
-   ```
+1. Apply pending updates using the yum command:
 
-## Install Yarn
-```bash
-npm install yarn -g
-```
-
-## Install Lerna
-```bash
-npm install -g lerna
-```
-
-## Install MongoDB
-Follow [instruction](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-amazon)
-
-1. ```bash
-   sudo nano /etc/yum.repos.d/mongodb-org-6.0.repo
-   ```
-   
-2. Copy paste the following into the file you just created above:
    ```bash
-   [mongodb-org-6.0]
-   name=MongoDB Repository
-   baseurl=https://repo.mongodb.org/yum/amazon/2/mongodb-org/6.0/x86_64/
-   gpgcheck=1
-   enabled=1
-   gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc
-   ```
-   Ctrl+X to exit, press Y to save the file.
-
-3. ```bash
-   sudo systemctl start mongod
+   sudo yum update
    ```
 
-4. ```bash
-   sudo systemctl status mongod
+2. Search for Docker package:
+
+   ```bash
+   sudo yum search docker
    ```
 
-5. ```bash
-   sudo systemctl enable mongod
+3. Get version information:
+
+   ```bash
+   sudo yum info docker
+   ```
+
+4. Install docker, run:
+
+   ```bash
+   sudo yum install docker
+   ```
+
+5. Add group membership for the default ec2-user so you can run all docker commands without using the sudo command:
+
+   ```bash
+   sudo usermod -a -G docker ec2-user
+   id ec2-user
+   newgrp docker
+   ```
+
+6. Install docker-compose:
+
+   ```bash
+   sudo yum install python3-pip
+   sudo pip3 install docker-compose
+   ```
+
+7. Enable docker service at AMI boot time:
+
+   ```bash
+   sudo systemctl enable docker.service
+   ```
+
+8. Start the Docker service:
+
+   ```bash
+   sudo systemctl start docker.service
    ```
 
 ## Install Git
+
 ```bash
 sudo yum install git -y
 ```
 
-## Install pm2
-```bash
-npm install pm2 -g
-```
-
-## Setup the project
-Two ways to setup:
-
-### Install Outerbridge via NPM:
-1. ```bash
-   npm install -g outerbridge
-   ```
-
-2. ```bash
-   npx outerbridge start
-   ```
-
-3. App is now ready on port 3000.
-
-4. To view the app, create 2 new inbound rules on the EC2 instance. Custom TCP Port 3000 that allows anywhere to access.
-
-5. You can then view the app: `<Your Public IPv4 DNS>`:3000. Example: `http://ec2-18-222-246-22.eu-west-1.compute.amazonaws.com:3000`.
-
-
-### Install via Github
+## Setup
 
 1. ```bash
    git clone https://github.com/Outerbridgeio/Outerbridge.git
    ```
 
 2. ```bash
-   cd Outerbridge
+   cd Outerbridge && cd docker
    ```
 
 3. ```bash
-   yarn bootstrap
-   ```
-   Depending on your RAM size, for t2.micro this could take a while.
-
-4. ```bash
-   yarn build
+   docker-compose up -d
    ```
 
-5. ```bash
-   yarn start
-   ```
+4. App is now ready on port 3000.
 
-6. App is now ready on port 3000.
+5. To view the app, create 2 new inbound rules on the EC2 instance. Custom TCP Port 3000 that allows anywhere to access.
 
-7. To view the app, create 2 new inbound rules on the EC2 instance. Custom TCP Port 3000 that allows anywhere to access.
+6. You can then view the app: "Your Public IPv4 DNS":3000. Example: `http://ec2-18-222-246-22.eu-west-1.compute.amazonaws.com:3000`
 
-8. You can then view the app: `<Your Public IPv4 DNS>`:3000. Example: `http://ec2-18-222-246-22.eu-west-1.compute.amazonaws.com:3000`.
+7. You can bring the app down by:
 
-
-## Troubleshoot yarn bootstrap
-
-In cases where t2.micro is taking forever on `yarn bootstrap`, here is the workaround:
-
-1. Install the dependencies of each package independently. `cd` into each package: `ui`, `components` and `server` and do `yarn install` for each of them.
-
-2. Back to the Outerbridge root path, do `yarn bootstrap`. Because the dependencies have been installed, the operation could be faster.
-
-
-## Troubleshoot yarn build
-
-Most of the time, it is stuck at building the `ui` folder. As a temporary workaround:
-
-1. Back to your EC2 home path (/home/ec2-user/) and do 
    ```bash
-   git clone https://github.com/Outerbridgeio/OuterbridgeUIBuild.git
+   docker-compose stop
    ```
 
-2. Copy the build folder to Outerbridge ui folder:
+8. You can pull from latest image by:
+
    ```bash
-   cp -r OuterbridgeUIBuild/build/ Outerbridge/packages/ui/
+   docker pull outerbridgeio/outerbridge
    ```
-
-3. ```bash
-   cd Outerbridge
-   ```
-
-4. Build `server` and `components` independently. `cd` into package: `components` and `server` and do `yarn build` for each of them.
-
-5. Back to the Outerbridge root path, do `yarn start` to see if app can be started.
-
-
-## Troubleshoot permission to start
-
-If you run into issue where `./run permission denied`. Do:
-```bash
-chmod -R 777 Outerbridge
-```
-to allow full access on the Outerbridge folder.
-
 
 ## Using NGINX
 
@@ -171,7 +110,7 @@ So user will be able to open the app using your domain. Example: `http://yourdom
 2. ```bash
    nginx -v
    ```
-   
+
 3. ```bash
    sudo systemctl start nginx
    ```
@@ -181,6 +120,7 @@ So user will be able to open the app using your domain. Example: `http://yourdom
    ```
 
 5. Copy paste the following and change to your domain:
+
    ```bash
    server {
        listen 80;
@@ -208,7 +148,6 @@ So user will be able to open the app using your domain. Example: `http://yourdom
 
 9. You can proceed to delete the 2 custom ports 3000 TCP inbound rules. They won't be needed anymore.
 
-
 ## Install Certbot to have HTTPS
 
 If you like your app to have `https://yourdomain.com`. Here is how:
@@ -218,7 +157,7 @@ If you like your app to have `https://yourdomain.com`. Here is how:
    ```
 
 2. ```bash
-   sudo yum-config-manager --enable epel 
+   sudo yum-config-manager --enable epel
    ```
 
 3. ```bash
@@ -234,6 +173,7 @@ If you like your app to have `https://yourdomain.com`. Here is how:
    ```
 
 6. If cert expired, simply renew:
+
    ```bash
    sudo certbot renew --dry-run
    ```
@@ -257,9 +197,10 @@ You can backup MongoDB database into S3 bucket. Here is the [article](https://ba
    ```
 
 4. Copy paste and replace values:
+
    ```bash
    #!/bin/bash
- 
+
    #Force file syncronization and lock writes
    mongo admin --eval "printjson(db.fsyncLock())"
 
@@ -293,10 +234,11 @@ You can backup MongoDB database into S3 bucket. Here is the [article](https://ba
 6. Go to S3 bucket, you should see a tar file.
 
 7. Setup cron
+
    ```bash
    crontab -e
    ```
-   
+
 8. Copy paste:
    ```bash
    #1st of every month at 9 am

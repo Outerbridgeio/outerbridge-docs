@@ -1,0 +1,58 @@
+# Host Outerbridge via AWS
+
+## Launch Digital Ocean Droplet
+
+Official [guide](https://docs.digitalocean.com/products/droplets/quickstart/) on how to launch a droplet.
+After droplet instance has successfully spinned up, SSH/Login into droplet.
+
+## Install Docker
+
+1. ```bash
+   curl -fsSL https://get.docker.com -o get-docker.sh
+   ```
+
+2. ```bash
+   sudo sh get-docker.sh
+   ```
+
+3. Install docket-compose:
+
+   ```bash
+   sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+   ```
+
+4. Set permission:
+
+   ```bash
+   sudo chmod +x /usr/local/bin/docker-compose
+   ```
+
+## Setup
+
+1. ```bash
+   git clone https://github.com/Outerbridgeio/Outerbridge.git
+   ```
+
+2. ```bash
+   cd Outerbridge && cd docker
+   ```
+
+3. ```bash
+   docker-compose up -d
+   ```
+
+4. App is now ready on port 3000.
+
+5. You can then view the app: "Your Public IPv4 DNS":3000. Example: `176.63.19.226:3000`
+
+6. You can bring the app down by:
+
+   ```bash
+   docker-compose stop
+   ```
+
+7. You can pull from latest image by:
+
+   ```bash
+   docker pull outerbridgeio/outerbridge
+   ```
