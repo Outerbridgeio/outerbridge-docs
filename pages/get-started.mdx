@@ -4,9 +4,23 @@ import Callout from 'nextra-theme-docs/callout'
 
 ## ⚡Quick Start
 
-1. Install MongoDB from [here](https://www.mongodb.com/try/download/community?tck=docs_server).
-2. `npm install -g outerbridge`
-3. `npx outerbridge start`
+1. Install MongoDB [locally](https://www.mongodb.com/docs/manual/administration/install-community/) OR follow the guide of using MongoDB Atlas [here](#mongodb-atlas)
+2. Install Outerbridge
+   ```bash
+   npm install -g outerbridge
+   ```
+3. Start Outerbridge
+
+   ```bash
+   npx outerbridge start
+   ```
+
+   If using MongoDB Atlas
+
+   ```bash
+   npx outerbridge start --mongourl=mongodb+srv://<user>:<password>@<your-cluster>.mongodb.net/outerbridge?retryWrites=true&w=majority
+   ```
+
 4. Open `http://localhost:3000`
 
 ## 🐳 Docker
@@ -33,6 +47,52 @@ import Callout from 'nextra-theme-docs/callout'
    ```bash
    docker-compose stop
    ```
+7. If using MongoDB Atlas
+
+   i.) Create a new variable in [.env](https://github.com/Outerbridgeio/Outerbridge/blob/master/docker/.env)
+
+   ```jsx
+   MONGO_URL=mongodb+srv://<user>:<password>@<your-cluster>.mongodb.net/outerbridge?retryWrites=true&w=majority
+   ```
+
+   ii.) Add the variable `MONGO_URL` under `outerbridge` section of [docker-compose.yml](https://github.com/Outerbridgeio/Outerbridge/blob/master/docker/docker-compose.yml)
+
+   ```jsx
+   version: '3.1'
+
+   services:
+
+   mongo:
+      image: mongo
+      ports:
+         - "27017:27017"
+      restart: always
+      environment:
+         - MONGO_INITDB_DATABASE=outerbridge
+
+   outerbridge:
+      image: outerbridgeio/outerbridge
+      restart: always
+      environment:
+         - MONGO_HOST=${MONGO_HOST}
+         - PASSPHRASE=${PASSPHRASE}
+         - ENABLE_TUNNEL=${ENABLE_TUNNEL}
+         - PORT=${PORT}
+         - MONGO_URL=${MONGO_URL}
+      ports:
+         - "${PORT}:${PORT}"
+      links:
+         - mongo
+      volumes:
+         - ~/.outerbridge:/root/.outerbridge
+      command: /bin/sh -c "sleep 3; outerbridge start"
+   ```
+
+   iii.) Start Docker Compose
+
+   ```bash
+   docker-compose up -d
+   ```
 
 ## 👨‍💻 Developers
 
@@ -44,7 +104,7 @@ Outerbridge has 3 different modules in a single mono repository.
 
 ### Prerequisite
 
-- Install MongoDB [here](https://www.mongodb.com/try/download/community?tck=docs_server)
+- Install MongoDB [locally](https://www.mongodb.com/docs/manual/administration/install-community/) OR register a MongoDB Atlas [here](https://www.mongodb.com/atlas/database)
 - Install Yarn
   ```bash
   npm i -g yarn
@@ -95,6 +155,58 @@ Outerbridge has 3 different modules in a single mono repository.
    yarn dev
    ```
    Any code changes will reload the app automatically on `http://localhost:8080`
+
+## MongoDB Atlas
+
+Below is the guide on how to use MongoDB Atlas.
+
+1. Navigate to `https://www.mongodb.com/atlas/database` and register an account
+
+2. After logging into dashboard, click Create or Build database
+
+   <br />
+   <img src="/mongostep1.png" alt="MongoAtlas" height="auto" width="100%"></img>
+
+3. Create a cluster
+
+   <br />
+   <img src="/mongostep2.png" alt="MongoAtlas" height="auto" width="100%"></img>
+
+4. Set up a username and password for database access
+
+   <br />
+   <img src="/mongostep3.png" alt="MongoAtlas" height="auto" width="100%"></img>
+
+5. Add IP Access List.
+
+   <Callout type="warning" emoji="⚠️">
+     Setting 0.0.0.0/0 will allow access from everywhere
+   </Callout>
+
+   <br />
+   <img src="/mongostep4.png" alt="MongoAtlas" height="auto" width="100%"></img>
+
+6. Now, you should see a cluster in dashboard, click "Connect"
+
+   <br />
+   <img src="/mongostep5.png" alt="MongoAtlas" height="auto" width="100%"></img>
+
+7. Select "Connect your application"
+
+   <br />
+   <img src="/mongostep6.png" alt="MongoAtlas" height="auto" width="100%"></img>
+
+8. Copy the mongo url link, replace with your username & password that you've created in Step 4, and add database name
+
+   <br />
+   <img src="/mongostep7.png" alt="MongoAtlas" height="auto" width="100%"></img>
+
+   For example:
+
+   ```jsx
+   mongodb+srv://user1:<password>@cluster0.t5kythn.mongodb.net/outerbridge?retryWrites=true&w=majority
+
+   ```
 
 ## 🔦 Tunnel
 
