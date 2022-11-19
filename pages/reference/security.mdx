@@ -1,0 +1,33 @@
+# Privacy and Security
+
+When using Outerbridge Cloud Hosted Application (instead of self-hosting), we take security and privacy seriously. Below, we outline how we handle specific data and what we do to secure it.
+
+## Encryption of traffic, TLS (SSL) Certificates
+
+Traffic between Outerbridge client web application at [https://app.outerbridge.io](https://aws.amazon.com/dynamodb/) and backend services is encrypted in transit. SSL Certificate is generated and kept securely in [AWS Certificate Manager](https://aws.amazon.com/certificate-manager/).
+
+## Encryption of data
+
+Outerbridge Cloud is hosted on Amazon Web Services [AWS](https://aws.amazon.com/) on US regions.
+
+API keys and OAuth credentials are encrypted at rest and securely stored in the production databases. These databases reside in a virtual private network (VPC). Backups of that database are also encrypted.
+
+The encryption keys are [AWS managed KMS](https://aws.amazon.com/kms/). KMS keys are 256 bit in length and use the Advanced Encryption Standard (AES) in Galois/Counter Mode (GCM). Keys are automatically rotated once a year. KMS has achieved SOC 1, 2, 3, and ISO 9001, 27001, 27017, 27018 compliance. Copies of these certifications are available from Amazon on request.
+
+## Encryption of wallet
+
+Wallets are needed to execute transaction on chain. For instance, swapping tokens, execute smart contract functions and etc. Each wallet has a unique private key that is used specifically to sign the transcaction.
+
+For wallets created and imported on Outerbridge Cloud, the private keys are securely stored in [AWS KMS](https://aws.amazon.com/kms/).
+
+A dynamic IAM policy is generated for each user to grant access for key creation, encryption and decryption.
+A specific key policy is assigned to each key, with limitation that only the specific user has access.
+
+In other words, to access the key, users must have a dynamically generated IAM policy from their credentials, **AND** the key must has the right policy that only limited to that specific user.
+You can read more about the technique [here](https://aws.amazon.com/blogs/apn/isolating-saas-tenants-with-dynamically-generated-iam-policies/).
+
+This ensure that user who created the key is the **ONLY** one who has access to the key, not even Outerbridge nor AWS. You can read more about AWS KMS security concern [here](https://aws.amazon.com/kms/faqs/#:~:text=AWS%20KMS%20is%20designed%20so,and%20integrity%20of%20your%20keys.).
+
+## Reporting Vulnerabilities and Bugs
+
+If you'd like to report for suspected vulnerabilities, please contact [`security@outerbridge.io`](mailto:security@outerbridge.io).

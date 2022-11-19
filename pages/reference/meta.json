@@ -1,5 +1,6 @@
 {
   "node": "Node",
   "hostaws": "Host via AWS",
-  "hostdigitalocean": "Host via Digital Ocean Droplet"
+  "hostdigitalocean": "Host via Digital Ocean Droplet",
+  "security": "Privacy and Security"
 }
