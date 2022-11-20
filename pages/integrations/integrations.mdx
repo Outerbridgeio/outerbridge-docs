@@ -1,12 +1,531 @@
 # Integrations
 
-## Alchemy
-<br/>
-<img src="/alchemy.svg" alt="Alchemy" height='50' width='50'></img>
-Perform Alchemy onchain operations
+## Web3 Nodes
 
-## Alchemy Trigger
-<br/>
-<img src="/alchemy.svg" alt="Alchemy" height='50' width='50'></img>
-Start workflow whenever subscribed event happend
+### Alchemy
 
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Alchemy/alchemy.svg"
+  alt="Alchemy"
+  height="50"
+  width="50"
+></img>
+
+- [Alchemy Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Alchemy/Alchemy.ts) - Perform Alchemy onchain operations
+
+- [Alchemy Trigger Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Alchemy/AlchemyTrigger.ts) - Start workflow whenever subscribed event happened
+
+- [Alchemy Webhook Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Alchemy/AlchemyWebhook.ts) - Start workflow whenever Alchemy webhook event happened
+
+### BEP20 and BNB
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/BEP20TransferTrigger/bnb.svg"
+  alt="BNB"
+  height="50"
+  width="50"
+></img>
+
+- [BEP20 Transfer Trigger Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/BEP20TransferTrigger/BEP20TransferTrigger.ts) - Triggers whenever a BEP20 transfer event happened
+
+- [BNB Balance Trigger Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/BNBBalanceTrigger/BNBBalanceTrigger.ts) - Triggers whenever BNB balance in wallet changes
+
+### Binance
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Binance/binance-logo.svg"
+  alt="Binance"
+  height="50"
+  width="50"
+></img>
+
+- [Binance Private Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Binance/BinancePrivate.ts) - Binance Private APIs that require API and Secret keys
+
+- [Binance Public Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Binance/BinancePublic.ts) - Binance Public API
+
+### ChainLink
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/ChainLink/chainlink.svg"
+  alt="ChainLink"
+  height="50"
+  width="50"
+></img>
+
+- [ChainLink Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/ChainLink/ChainLink.ts) - Execute ChainLink operations such as Data Feeds, Randomness, Oracles
+
+### ERC20 and ETH
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/ERC20TransferTrigger/ethereum.svg"
+  alt="ETH"
+  height="50"
+  width="50"
+></img>
+
+- [ERC20 Transfer Trigger Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/ERC20TransferTrigger/ERC20TransferTrigger.ts) - Start workflow whenever an ERC20 transfer event happened
+
+- [ETH Balance Trigger Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/ETHBalanceTrigger/ETHBalanceTrigger.ts) - Start workflow whenever ETH balance in wallet changes
+
+- [Create ERC20 Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/CreateERC20Token/CreateERC20Token.ts) - Create new cryptocurrency token (ERC20)
+
+### Helius
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Helius/helius.png"
+  alt="Helius"
+  height="50"
+  width="50"
+></img>
+
+- [Helius Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Helius/Helius.ts) - Perform Helius operations on Solana
+
+### Infura
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Infura/infura.svg"
+  alt="Infura"
+  height="50"
+  width="50"
+></img>
+
+- [Infura Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Infura/Infura.ts) - Perform Infura onchain operations
+
+- [Infura Trigger Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Infura/InfuraTrigger.ts) - Start workflow whenever subscribed event happened
+
+### Moralis
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Moralis/moralis.svg"
+  alt="Moralis"
+  height="50"
+  width="50"
+></img>
+
+- [Moralis Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Moralis/Moralis.ts) - Execute Moralis APIs
+
+### NFT
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/NFTMintTrigger/nftmint.png"
+  alt="NFT"
+  height="50"
+  width="50"
+></img>
+
+- [NFT Mint Trigger Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/NFTMintTrigger/NFTMintTrigger.ts) - Start workflow whenever a NFT is minted
+
+- [NFT Transfer Trigger Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/NFTTransferTrigger/NFTTransferTrigger.ts) - Start workflow whenever a NFT transfer event happened
+
+- [Create NFT Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/CreateNFT/CreateNFT.ts) - Create new NFT (ERC1155)
+
+### OpenSea
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Opensea/opensea.svg"
+  alt="OpenSea"
+  height="50"
+  width="50"
+></img>
+
+- [OpenSea Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Opensea/Opensea.ts) - Query OpenSea information
+
+- [OpenSea Trigger Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Opensea/OpenseaEventTrigger.ts) - Start workflow whenever OpenSea event occurs
+
+### OptimismScan
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/OptimismScan/optimismScan.svg"
+  alt="OptimismScan"
+  height="50"
+  width="50"
+></img>
+
+- [OptimismScan Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/OptimismScan/OptimismScan.ts) - Execute Optimism Public API
+
+### PancakeSwap
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/PancakeSwap/pancakeswap.png"
+  alt="PancakeSwap"
+  height="50"
+  width="50"
+></img>
+
+- [PancakeSwap Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/PancakeSwap/PancakeSwap.ts) - Execute PancakeSwap operations
+
+### Pinata
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Pinata/pinata.svg"
+  alt="Pinata"
+  height="50"
+  width="50"
+></img>
+
+- [Pinata Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Pinata/Pinata.ts) - Pin your content to IPFS with Pinata
+
+### Polygon (MATIC)
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/MATICBalanceTrigger/polygon.svg"
+  alt="Polygon"
+  height="50"
+  width="50"
+></img>
+
+- [MATIC Balance Trigger Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/MATICBalanceTrigger/MATICBalanceTrigger.ts) - Start workflow whenever MATIC balance in wallet changes
+
+- [PolygonScan Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/PolygonScan/PolygonScan.ts) - PolygonScan Public API
+
+### QuickNode
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/QuickNode/quicknode.svg"
+  alt="QuickNode"
+  height="50"
+  width="50"
+></img>
+
+- [QuickNode Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/QuickNode/QuickNode.ts) - Perform QuickNode onchain operations
+
+- [QuickNode Trigger Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/QuickNode/QuickNodeTrigger.ts) - Start workflow whenever subscribed QuickNode event happened
+
+### Smart Contract
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/ContractEventTrigger/contract-event-trigger.svg"
+  alt="SmartContract"
+  height="50"
+  width="50"
+></img>
+
+- [Execute Contract Function Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/ExecuteContractFunction/ExecuteContractFunction.ts) - Execute smart contract function
+
+- [Contract Event Trigger Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/ContractEventTrigger/ContractEventTrigger.ts) - Start workflow whenever the specified contract event happened
+
+- [Contract Function Trigger Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/ContractFunctionTrigger/ContractFunctionTrigger.ts) - Triggers whenever the specified view function return value changes
+
+### SnowTrace
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/SnowTrace/snowtrace.svg"
+  alt="SnowTrace"
+  height="50"
+  width="50"
+></img>
+
+- [SnowTrace Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/SnowTrace/SnowTrace.ts) - Perform SnowTrace operations
+
+### Solidity
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Solidity/solidity.svg"
+  alt="Solidity"
+  height="50"
+  width="50"
+></img>
+
+- [Solidity Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Solidity/Solidity.ts) - Compile and Deploy Solidity Code
+
+### Solscan
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Solscan/solscan.png"
+  alt="Solscan"
+  height="50"
+  width="50"
+></img>
+
+- [Solscan Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Solscan/Solscan.ts) - Solscan Public API
+
+### Uniswap
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Uniswap/uniswap.png"
+  alt="Uniswap"
+  height="50"
+  width="50"
+></img>
+
+- [Uniswap Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Uniswap/Uniswap.ts) - Execute Uniswap operations
+
+## Web2 Nodes
+
+### Discord
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Discord/discord.svg"
+  alt="Discord"
+  height="50"
+  width="50"
+></img>
+
+- [Discord Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Discord/Discord.ts) - Post message in Discord channel
+
+### Github
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/gilbarbara/logos/master/logos/github-icon.svg"
+  alt="Github"
+  height="50"
+  width="50"
+></img>
+
+- [Github Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/GitHub/GitHub.ts) - Execute GitHub APIs
+- [Github Webhook Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/GitHub/GitHubWebhook.ts) -Start workflow whenever GitHub webhook event happened
+
+### Google Docs
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/GoogleDocs/gdocs.svg"
+  alt="GoogleDocs"
+  height="50"
+  width="50"
+></img>
+
+- [Google Docs Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/GoogleDocs/GoogleDocs.ts) - Execute GoogleDocs operations
+
+### Google Sheet
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/GoogleSheet/gsheet.svg"
+  alt="GoogleSheet"
+  height="50"
+  width="50"
+></img>
+
+- [Google Sheet Action Node](https://github.com/Outerbridgeio/Outerbridge/tree/master/packages/components/nodes/GoogleSheet) - Execute GoogleSheet operations
+
+### MailChimp
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/gilbarbara/logos/master/logos/mailchimp-freddie.svg"
+  alt="MailChimp"
+  height="50"
+  width="50"
+></img>
+
+- [MailChimp Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Mailchimp/Mailchimp.ts) - Mailchimp market api integration
+
+### Notion
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Notion/notion.svg"
+  alt="Notion"
+  height="50"
+  width="50"
+></img>
+
+- [Notion Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Notion/Notion.ts) - Work with Notion page, database or block
+
+### Slack
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Slack/slack.svg"
+  alt="Slack"
+  height="50"
+  width="50"
+></img>
+
+- [Slack Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Slack/Slack.ts) - Post message in Slack channel
+
+### Teams
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Teams/teams.svg"
+  alt="Teams"
+  height="50"
+  width="50"
+></img>
+
+- [Teams Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Teams/Teams.ts) - Post message in Teams channel
+
+### Telegram
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Telegram/telegram.svg"
+  alt="Telegram"
+  height="50"
+  width="50"
+></img>
+
+- [Telegram Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Telegram/Telegram.ts) - Perform Telegram operations
+
+### Twitter
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Twitter/Twitter-Logo.png"
+  alt="Twitter"
+  height="50"
+  width="50"
+></img>
+
+- [Twitter Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Twitter/Twitter.ts) - Search Twitter user's tweets by keyword
+
+### Typeform
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Typeform/typeform-icon.svg"
+  alt="Typeform"
+  height="50"
+  width="50"
+></img>
+
+- [Typeform Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Typeform/Typeform.ts) - Perform Typeform operations
+
+- [Typeform Webhook Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/TypeformWebhook/TypeformWebhook.ts) - Start workflow whenever Typeform webhook event happened
+
+### Xero
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Xero/xero.svg"
+  alt="Xero"
+  height="50"
+  width="50"
+></img>
+
+- [Xero Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Xero/xero.ts) - Perform Xero operations
+
+## Utility Nodes
+
+### IfElse
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/IfElse/ifelse.svg"
+  alt="IfElse"
+  height="50"
+  width="50"
+></img>
+
+- [IfElse Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/IfElse/IfElse.ts) - Split flows according to conditions set
+
+### GraphQL
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/GraphQL/graphql.svg"
+  alt="GraphQL"
+  height="50"
+  width="50"
+></img>
+
+- [GraphQL Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/GraphQL/GraphQL.ts) - Execute GraphQL requests
+
+### HTTP
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/HTTP/http.svg"
+  alt="HTTP"
+  height="50"
+  width="50"
+></img>
+
+- [HTTP Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/HTTP/HTTP.ts) - Execute HTTP requests
+
+### Email
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/EmailSend/emailsend.svg"
+  alt="Email"
+  height="50"
+  width="50"
+></img>
+
+- [Send Email Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/EmailSend/EmailSend.ts) - Send email to single or multiple receipients
+- [Email Trigger Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/EmailTrigger/EmailTrigger.ts) - Start workflow whenever a new email is received
+
+### Image Editor
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/ImageEditor/image-editor.svg"
+  alt="ImageEditor"
+  height="50"
+  width="50"
+></img>
+
+- [Image Editor Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/ImageEditor/ImageEditor.ts) - Edit image with different manipulation methods
+
+### NodeJS
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/NodeJS/nodejs.png"
+  alt="NodeJS"
+  height="50"
+  width="50"
+></img>
+
+- [NodeJS Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/NodeJS/NodeJS.ts) - Execute code within NodeVM sandbox
+
+### Scheduler
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Scheduler/scheduler.svg"
+  alt="Scheduler"
+  height="50"
+  width="50"
+></img>
+
+- [Scheduler Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Scheduler/Scheduler.ts) - Start workflow at scheduled times
+
+### Wait
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Wait/wait.svg"
+  alt="Wait"
+  height="50"
+  width="50"
+></img>
+
+- [Wait Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Wait/Wait.ts) - Wait before continuing with the execution
+
+### Webhook
+
+<br />
+<img
+  src="https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/packages/components/nodes/Webhook/webhook.svg"
+  alt="Webhook"
+  height="50"
+  width="50"
+></img>
+
+- [Webhook Action Node](https://github.com/Outerbridgeio/Outerbridge/blob/master/packages/components/nodes/Webhook/Webhook.ts) - Start workflow when webhook is called
